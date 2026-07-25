@@ -61,7 +61,9 @@ export default function Profile() {
             </p>
           </>
         )}
-
+          <button className="btn-secondary" onClick={() => navigate('/map')} style={{ marginBottom: 10 }}>
+              🗺️ 지도에서 맛집 보기
+          </button>
         <button className="btn-secondary" onClick={handleLogout}>
           로그아웃
         </button>

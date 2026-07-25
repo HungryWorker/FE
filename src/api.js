@@ -54,3 +54,20 @@ export async function apiFetch(path, options = {}) {
 export function fetchMe() {
   return apiFetch('/api/users/me')
 }
+
+/**
+ * 주어진 좌표 주변의 음식점을 조회한다.
+ * 백엔드 RestaurantController가 아직 없다면 404/401 등으로 실패할 수 있는데,
+ * 그 경우에도 지도 화면 자체는 정상 동작해야 하므로 호출부에서 에러를 흡수한다.
+ */
+export function fetchNearbyRestaurants({ lat, lng, radius = 1500, maxPrice } = {}) {
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lng: String(lng),
+    radius: String(radius),
+  })
+  if (maxPrice) {
+    params.set('maxPrice', String(maxPrice))
+  }
+  return apiFetch(`/api/restaurants/nearby?${params.toString()}`)
+}

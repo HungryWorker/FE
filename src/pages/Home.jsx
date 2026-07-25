@@ -24,7 +24,9 @@ export default function Home() {
           <GoogleIcon />
           구글로 로그인
         </a>
-
+          <button className="btn-secondary" onClick={() => navigate('/map')}>
+              🗺️ 지도에서 맛집 보기
+          </button>
         {hasToken && (
           <button className="btn-secondary" onClick={() => navigate('/profile')}>
             이미 로그인했어요, 내 정보 보기

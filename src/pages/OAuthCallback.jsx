@@ -16,7 +16,7 @@ export default function OAuthCallback() {
     }
 
     setToken(token)
-    navigate('/profile', { replace: true })
+    navigate('/', { replace: true })
   }, [searchParams, navigate])
 
   return (

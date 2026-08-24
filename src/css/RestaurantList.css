@@ -1,0 +1,598 @@
+/* =========================================================
+   전체 식당 리스트
+========================================================= */
+
+.restaurant-list {
+    position: relative;
+
+    width: 360px;
+    height: 100%;
+
+    flex: 0 0 360px;
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--card);
+
+    border: 1px solid var(--line);
+    border-radius: 16px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    box-shadow: 0 8px 24px rgba(34, 40, 31, 0.14);
+}
+
+
+/* =========================================================
+   검색 + 필터
+========================================================= */
+
+.restaurant-search {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    flex-shrink: 0;
+
+    padding: 10px;
+}
+
+.restaurant-search-box {
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+
+    min-width: 0;
+    min-height: 48px;
+
+    padding: 6px 12px;
+
+    background: var(--card);
+
+    border: 1px solid var(--line);
+    border-radius: 14px;
+
+    box-shadow: 0 6px 20px rgba(34, 40, 31, 0.12);
+}
+
+.restaurant-search-icon {
+    flex-shrink: 0;
+
+    font-size: 16px;
+
+    margin-right: 6px;
+}
+
+.restaurant-search-box input {
+    flex: 1;
+
+    min-width: 0;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    padding: 8px 4px;
+
+    font-size: 14px;
+
+    color: var(--ink);
+}
+
+.restaurant-search-box input::placeholder {
+    color: var(--ink-soft);
+}
+
+
+/* =========================================================
+   필터 버튼
+========================================================= */
+
+.restaurant-filter-btn {
+    width: 50px;
+    height: 50px;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--line);
+    border-radius: 14px;
+
+    background: var(--card);
+
+    font-size: 17px;
+
+    cursor: pointer;
+
+    box-shadow: 0 6px 20px rgba(34, 40, 31, 0.12);
+
+    transition: 0.2s;
+}
+
+.restaurant-filter-btn:hover,
+.restaurant-filter-btn.active {
+    background: #f1eee5;
+}
+
+
+/* =========================================================
+   필터 패널
+========================================================= */
+
+.restaurant-filter-panel {
+    position: absolute;
+
+    top: calc(100% - 2px);
+    left: 10px;
+    right: 10px;
+
+    z-index: 50;
+
+    display: flex;
+
+    gap: 6px;
+
+    padding: 10px;
+
+    background: var(--card);
+
+    border: 1px solid var(--line);
+    border-radius: 14px;
+
+    box-shadow: 0 6px 20px rgba(34, 40, 31, 0.12);
+}
+
+.restaurant-filter-panel button {
+    flex: 1;
+
+    padding: 8px 6px;
+
+    border: 1px solid var(--line);
+    border-radius: 10px;
+
+    background: #f6f4ee;
+
+    font-size: 11px;
+
+    cursor: pointer;
+}
+
+.restaurant-filter-panel button:hover {
+    background: #eee9dc;
+}
+
+
+/* =========================================================
+   식당 카드
+========================================================= */
+
+.restaurant-card {
+    position: relative;
+
+    flex-shrink: 0;
+
+    margin: 0 10px 10px;
+
+    background: var(--card);
+
+    border: 1px solid var(--line);
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow: 0 6px 20px rgba(34, 40, 31, 0.12);
+
+    cursor: pointer;
+
+    transition:
+            transform 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 24px rgba(34, 40, 31, 0.16);
+}
+
+
+/* =========================================================
+   사진 영역
+========================================================= */
+
+.restaurant-card-image {
+    position: relative;
+
+    width: 100%;
+    height: 180px;
+
+    background: #eee9dc;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   사진 슬라이드
+   - 한 장만 표시
+   - active만 보임
+========================================================= */
+
+.restaurant-photo-list {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+}
+
+.restaurant-photo-list img {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition: opacity 0.2s ease;
+}
+
+.restaurant-photo-list img.active {
+    opacity: 1;
+
+    pointer-events: auto;
+}
+
+
+/* =========================================================
+   사진 화살표
+========================================================= */
+
+.restaurant-photo-arrow {
+    position: absolute;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    z-index: 8;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.7);
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.92);
+
+    color: var(--ink);
+
+    font-size: 24px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+
+    transition:
+            background 0.15s ease,
+            transform 0.15s ease;
+}
+
+.restaurant-photo-arrow:hover {
+    background: #fff;
+
+    transform: translateY(-50%) scale(1.05);
+}
+
+.restaurant-photo-arrow-left {
+    left: 8px;
+}
+
+.restaurant-photo-arrow-right {
+    right: 8px;
+}
+
+
+/* =========================================================
+   사진 없음
+========================================================= */
+
+.restaurant-card-image > span {
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 42px;
+}
+
+
+/* =========================================================
+   하트
+========================================================= */
+
+.restaurant-heart {
+    position: absolute;
+
+    right: 10px;
+    top: 10px;
+
+    z-index: 10;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.9);
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.restaurant-heart:hover {
+    background: #fff;
+}
+
+
+/* =========================================================
+   식당 정보
+========================================================= */
+
+.restaurant-card-content {
+    padding: 12px 14px 14px;
+}
+
+.restaurant-category {
+    margin-bottom: 4px;
+
+    font-size: 12px;
+
+    color: var(--ink-soft);
+}
+
+.restaurant-name {
+    margin: 0 0 6px;
+
+    font-family: 'Fraunces', serif;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    color: var(--ink);
+}
+
+.restaurant-meta {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 12px;
+
+    color: var(--ink-soft);
+
+    white-space: nowrap;
+
+    overflow: hidden;
+}
+
+.restaurant-meta span {
+    flex-shrink: 0;
+}
+
+.restaurant-rating {
+    font-weight: 600;
+
+    color: var(--accent-ink);
+}
+
+
+/* =========================================================
+   리뷰 영역
+========================================================= */
+
+.restaurant-review-list {
+    position: relative;
+
+    width: 100%;
+
+    height: 38px;
+
+    margin-top: 10px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   리뷰 하나
+   - active만 보임
+========================================================= */
+
+.restaurant-review {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: none;
+
+    align-items: center;
+
+    margin: 0;
+
+    padding: 8px 34px 8px 10px;
+
+    background: #f6f4ee;
+
+    border-radius: 10px;
+
+    color: var(--ink-soft);
+
+    font-size: 12px;
+
+    line-height: 1.4;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+.restaurant-review.active {
+    display: flex;
+}
+
+
+/* =========================================================
+   리뷰 화살표
+========================================================= */
+
+.restaurant-review-arrow {
+    position: absolute;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    z-index: 10;
+
+    width: 24px;
+    height: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid var(--line);
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    color: var(--ink);
+
+    font-size: 19px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+    transition:
+            background 0.15s ease,
+            transform 0.15s ease;
+}
+
+.restaurant-review-arrow:hover {
+    background: #fff;
+
+    transform: translateY(-50%) scale(1.05);
+}
+
+.restaurant-review-arrow-left {
+    left: 4px;
+}
+
+.restaurant-review-arrow-right {
+    right: 4px;
+}
+
+
+/* =========================================================
+   리스트 스크롤바
+========================================================= */
+
+.restaurant-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.restaurant-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.restaurant-list::-webkit-scrollbar-thumb {
+    background: rgba(34, 40, 31, 0.2);
+
+    border-radius: 10px;
+}
+
+.restaurant-list {
+    scrollbar-width: thin;
+}
+
+
+/* =========================================================
+   검색 결과 없음
+========================================================= */
+
+.restaurant-empty {
+    margin: 10px;
+
+    padding: 30px 12px;
+
+    text-align: center;
+
+    color: var(--ink-soft);
+
+    font-size: 13px;
+
+    background: var(--card);
+
+    border: 1px solid var(--line);
+
+    border-radius: 14px;
+}
+
+
+/* =========================================================
+   좁은 화면
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .restaurant-list {
+        width: 360px;
+
+        flex: 0 0 360px;
+    }
+}

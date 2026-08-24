@@ -1,0 +1,792 @@
+/* =========================================================
+   팝업
+========================================================= */
+
+.restaurant-popup {
+    position: relative;
+
+    width: 360px;
+    height: 100%;
+
+    background: var(--card);
+
+    border: 1px solid var(--line);
+    border-radius: 16px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    box-shadow:
+            0 8px 24px rgba(34, 40, 31, 0.14);
+}
+
+
+/* =========================================================
+   상단 버튼
+========================================================= */
+
+.restaurant-popup-actions {
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+
+    z-index: 20;
+
+    display: flex;
+    gap: 6px;
+}
+
+.restaurant-popup-save,
+.restaurant-popup-close {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    color: var(--ink);
+
+    cursor: pointer;
+
+    box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.restaurant-popup-save {
+    font-size: 21px;
+}
+
+.restaurant-popup-close {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.restaurant-popup-save:hover,
+.restaurant-popup-close:hover {
+    background: #fff;
+}
+
+
+/* =========================================================
+   헤더
+========================================================= */
+
+.restaurant-popup-header {
+    padding: 18px 18px 14px;
+}
+
+.restaurant-popup-header h2 {
+    margin: 0 85px 5px 0;
+
+    color: var(--ink);
+
+    font-family: 'Fraunces', serif;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    line-height: 1.25;
+}
+
+.restaurant-popup-category {
+    margin-bottom: 12px;
+
+    color: var(--ink-soft);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   종합 평점
+========================================================= */
+
+.restaurant-total-rating {
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    margin-bottom: 5px;
+}
+
+.restaurant-stars {
+    color: #d9a441;
+
+    font-size: 18px;
+
+    letter-spacing: 1px;
+
+    white-space: nowrap;
+}
+
+.restaurant-total-rating strong {
+    color: var(--ink);
+
+    font-size: 17px;
+}
+
+.restaurant-total-rating > span {
+    color: var(--ink-soft);
+
+    font-size: 11px;
+}
+
+.restaurant-registered-date {
+    color: var(--ink-soft);
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   메인 사진
+========================================================= */
+
+.restaurant-popup-photo-wrapper {
+    position: relative;
+
+    width: 100%;
+}
+
+.restaurant-popup-photos {
+    display: flex;
+
+    width: 100%;
+    height: 210px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scroll-snap-type: x mandatory;
+
+    scrollbar-width: none;
+}
+
+.restaurant-popup-photos::-webkit-scrollbar {
+    display: none;
+}
+
+.restaurant-popup-photos img {
+    flex: 0 0 100%;
+
+    width: 100%;
+    height: 210px;
+
+    object-fit: cover;
+
+    scroll-snap-align: start;
+}
+
+
+/* =========================================================
+   메인 사진 화살표
+========================================================= */
+
+.restaurant-photo-arrow {
+    position: absolute;
+
+    top: 50%;
+    transform: translateY(-50%);
+
+    z-index: 5;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.9);
+
+    color: var(--ink);
+
+    font-size: 24px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.restaurant-photo-arrow:hover {
+    background: #fff;
+}
+
+.restaurant-photo-arrow-left {
+    left: 10px;
+}
+
+.restaurant-photo-arrow-right {
+    right: 10px;
+}
+
+
+/* =========================================================
+   기본 정보
+========================================================= */
+
+.restaurant-popup-info {
+    padding: 14px 18px 4px;
+}
+
+.restaurant-info-row {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    padding: 7px 0;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.restaurant-info-label {
+    flex: 0 0 82px;
+
+    color: var(--ink);
+
+    font-weight: 600;
+}
+
+.restaurant-info-row > span:last-child {
+    min-width: 0;
+
+    color: var(--ink-soft);
+
+    word-break: keep-all;
+}
+
+
+/* =========================================================
+   태그
+========================================================= */
+
+.restaurant-tags {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+
+    padding: 10px 18px 16px;
+}
+
+.restaurant-tag {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 11px;
+
+    border: 1px solid var(--line);
+    border-radius: 999px;
+
+    background: #f6f4ee;
+
+    color: var(--ink-soft);
+
+    font-size: 11px;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   리뷰 영역
+========================================================= */
+
+.restaurant-review-section {
+    padding: 16px 18px 18px;
+
+    border-top: 1px solid var(--line);
+}
+
+.restaurant-review-title {
+    display: flex;
+    align-items: center;
+
+    margin-bottom: 12px;
+}
+
+.restaurant-review-title h3 {
+    margin: 0;
+
+    color: var(--ink);
+
+    font-size: 16px;
+}
+
+.restaurant-review-title h3 span {
+    margin-left: 5px;
+
+    color: var(--ink-soft);
+
+    font-size: 11px;
+    font-weight: 400;
+}
+
+
+/* =========================================================
+   사용자 별점
+========================================================= */
+
+.restaurant-user-score-list {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 8px;
+
+    margin-bottom: 14px;
+
+    padding: 10px;
+
+    background: #f6f4ee;
+
+    border-radius: 12px;
+}
+
+.restaurant-user-score-row {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+}
+
+.restaurant-user-score-label {
+    flex: 0 0 24px;
+
+    color: var(--ink);
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+.restaurant-score-picker {
+    display: flex;
+
+    align-items: center;
+
+    gap: 0;
+
+    min-width: 0;
+}
+
+.restaurant-picker-star {
+    position: relative;
+
+    width: 19px;
+    height: 25px;
+
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: #ddd7ca;
+
+    font-size: 18px;
+
+    line-height: 25px;
+
+    cursor: pointer;
+}
+
+.restaurant-picker-star.full {
+    color: #d9a441;
+}
+
+/*
+ * 반쪽별
+ * 별 자체를 절반만 보이게 하고
+ * 오른쪽 절반은 빈 별로 표시
+ */
+
+.restaurant-picker-star.half {
+    color: #ddd7ca;
+}
+
+.restaurant-picker-star.half::before {
+    content: '★';
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 50%;
+
+    overflow: hidden;
+
+    color: #d9a441;
+
+    white-space: nowrap;
+}
+
+.restaurant-user-score-number {
+    flex-shrink: 0;
+
+    min-width: 28px;
+
+    color: var(--ink-soft);
+
+    font-size: 10px;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   댓글 입력
+========================================================= */
+
+.restaurant-comment-form {
+    width: 100%;
+
+    margin-bottom: 20px;
+}
+
+
+/*
+ * 흰색 검색창 느낌의 입력 박스
+ * 기본 상태는 얇게
+ */
+
+.restaurant-comment-input-box {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+
+    min-height: 42px;
+
+    padding: 5px 6px 5px 12px;
+
+    background: #fff;
+
+    border: 1px solid var(--line);
+
+    border-radius: 12px;
+
+    box-sizing: border-box;
+
+    box-shadow:
+            0 2px 8px rgba(34, 40, 31, 0.06);
+}
+
+.restaurant-comment-input {
+    flex: 1;
+
+    min-width: 0;
+
+    min-height: 28px;
+    max-height: 150px;
+
+    padding: 5px 4px;
+
+    resize: none;
+
+    overflow-y: auto;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: var(--ink);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.restaurant-comment-input::placeholder {
+    color: var(--ink-soft);
+}
+
+.restaurant-comment-input-actions {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+
+    margin-left: 5px;
+}
+
+.restaurant-comment-photo-btn,
+.restaurant-comment-submit {
+    flex-shrink: 0;
+
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+
+.restaurant-comment-photo-btn {
+    width: 30px;
+
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 16px;
+}
+
+.restaurant-comment-photo-btn:hover {
+    background: #f3f1eb;
+}
+
+.restaurant-comment-submit {
+    padding: 0 11px;
+
+    border: none;
+
+    background: var(--ink);
+
+    color: white;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.restaurant-comment-submit:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.restaurant-comment-submit:disabled {
+    opacity: 0.35;
+
+    cursor: default;
+}
+
+
+/* =========================================================
+   첨부 사진
+========================================================= */
+
+.restaurant-comment-images {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin-top: 8px;
+
+    padding: 4px 0;
+}
+
+.restaurant-comment-image {
+    position: relative;
+
+    width: 62px;
+    height: 62px;
+
+    flex-shrink: 0;
+}
+
+.restaurant-comment-image img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    border-radius: 9px;
+}
+
+.restaurant-comment-image-remove {
+    position: absolute;
+
+    top: -5px;
+    right: -5px;
+
+    width: 20px;
+    height: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid white;
+
+    border-radius: 50%;
+
+    background: rgba(0, 0, 0, 0.65);
+
+    color: white;
+
+    font-size: 13px;
+
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   기존 댓글
+========================================================= */
+
+.restaurant-comments {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+.restaurant-comment {
+    display: flex;
+
+    gap: 9px;
+}
+
+.restaurant-comment-profile {
+    flex-shrink: 0;
+}
+
+.restaurant-comment-profile img,
+.restaurant-comment-avatar {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+}
+
+.restaurant-comment-profile img {
+    object-fit: cover;
+}
+
+.restaurant-comment-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eee9dc;
+
+    font-size: 16px;
+}
+
+.restaurant-comment-body {
+    min-width: 0;
+}
+
+.restaurant-comment-body strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: var(--ink);
+
+    font-size: 12px;
+}
+
+.restaurant-comment-body p {
+    margin: 0;
+
+    color: var(--ink-soft);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    word-break: break-word;
+}
+
+.restaurant-comment-date {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--ink-soft);
+
+    font-size: 9px;
+}
+
+.restaurant-no-comments {
+    padding: 18px 0;
+
+    text-align: center;
+
+    color: var(--ink-soft);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   스크롤바
+========================================================= */
+
+.restaurant-popup::-webkit-scrollbar {
+    width: 5px;
+}
+
+.restaurant-popup::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.restaurant-popup::-webkit-scrollbar-thumb {
+    background: rgba(34, 40, 31, 0.2);
+
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   좁은 화면
+========================================================= */
+
+@media (max-width: 900px) {
+    .restaurant-popup {
+        width: 360px;
+        max-width: calc(100vw - 32px);
+    }
+
+    .restaurant-user-score-list {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .restaurant-picker-star {
+        width: 17px;
+    }
+}

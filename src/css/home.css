@@ -1,0 +1,42 @@
+.screen_home {
+    background-color: #FF9000;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.logo_home {
+    max-height: 200px;
+    /*
+    height: 216px;
+    width: 216px;
+    */
+    border-radius: 50%;
+    padding-bottom: 10px;
+}
+
+.btn-google_home {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 25px;
+    background: var(--ink);
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.btn-google_home:hover {
+    background: #333c2b;
+    transform: translateY(-1px);
+}

@@ -12,7 +12,7 @@ import {
 } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { fetchNearbyRestaurants, getToken } from '../api'
+import { fetchNearbyRestaurants, searchRestaurants, getToken, } from '../api'
 import RestaurantList from '../components/RestaurantList'
 import RestaurantPopup from '../components/RestaurantPopup'
 import '../css/Mapview.css'
@@ -97,77 +97,9 @@ export default function MapView() {
   const [mapCenter, setMapCenter] = useState(null)
   const [showResearch, setShowResearch] = useState(false)
 
-  // const [restaurants, setRestaurants] = useState([])
+  const [restaurants, setRestaurants] = useState([])
   const [selectedRestaurant, setSelectedRestaurant] = useState(null)
-  //더미데이터
-  const [restaurants, setRestaurants] = useState([
-    {
-      id: 1,
 
-      name: '김치찌개 맛집',
-      category: '한식',
-
-      latitude: 37.5668,
-      longitude: 126.9784,
-
-      registeredAt: '8월 24일',
-
-      photos: [
-        'https://images.unsplash.com/photo-1603133872878-684f208fb84b',
-        'https://images.unsplash.com/photo-1547592180-85f173990554',
-        'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f',
-      ],
-
-      address: '서울특별시 종로구 종로 123',
-
-      businessHours: '11:00 ~ 21:00',
-      breakTime: '15:00 ~ 17:00',
-
-      cheapestMenu: '김치찌개',
-      cheapestPrice: 8,
-
-      tags: [
-        '밥',
-        '한식',
-        '혼밥',
-        '가성비',
-      ],
-
-      rating: 4.7,
-      totalScore: 4.7,
-
-      taste: 4.8,
-      portion: 4.5,
-      value: 4.7,
-      hygiene: 4.6,
-
-      reviewCount: 128,
-
-      reviews: [
-        {
-          id: 1,
-          nickname: '맛있는거좋아',
-          profileImage: null,
-          comment: '국물이 진하고 고기가 푸짐해서 정말 맛있었어요!',
-          date: '8월 20일',
-        },
-        {
-          id: 2,
-          nickname: '혼밥러',
-          profileImage: null,
-          comment: '혼자 먹기에도 좋고 가격도 괜찮았습니다.',
-          date: '8월 18일',
-        },
-        {
-          id: 3,
-          nickname: '먹보',
-          profileImage: null,
-          comment: '양이 꽤 많아요. 다음에도 또 올 것 같아요.',
-          date: '8월 15일',
-        },
-      ],
-    }
-  ])
   const [restaurantsLoading, setRestaurantsLoading] = useState(false)
   const [restaurantsError, setRestaurantsError] = useState(null)
   const [needsLogin, setNeedsLogin] = useState(false)
@@ -257,6 +189,41 @@ export default function MapView() {
 
   function handleResearch() {
     if (mapCenter) setSearchCenter(mapCenter)
+  }
+
+  async function handleRestaurantSearch(keyword) {
+    const trimmedKeyword = keyword.trim()
+
+    if (!trimmedKeyword) {
+      return
+    }
+
+    setRestaurantsLoading(true)
+    setRestaurantsError(null)
+
+    try {
+      const result = await searchRestaurants({
+        keyword: trimmedKeyword,
+        lat: mapCenter?.lat ?? position.lat,
+        lng: mapCenter?.lng ?? position.lng,
+        radius: SEARCH_RADIUS_M,
+      })
+
+      const mappedRestaurants = Array.isArray(result)
+          ? result
+          : []
+
+      setRestaurants(mappedRestaurants)
+      setSelectedRestaurant(null)
+      setShowResearch(false)
+    } catch (e) {
+      console.error('식당 검색 실패:', e)
+      setRestaurantsError(
+          '음식점을 검색하지 못했어요. 잠시 후 다시 시도해주세요.'
+      )
+    } finally {
+      setRestaurantsLoading(false)
+    }
   }
 
   function handleLocateMe() {
@@ -377,6 +344,7 @@ export default function MapView() {
           <RestaurantList
               restaurants={restaurants}
               onSelect={setSelectedRestaurant}
+              onSearch={handleRestaurantSearch}
           />
           {selectedRestaurant && (
               <RestaurantPopup

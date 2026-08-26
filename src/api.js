@@ -71,3 +71,32 @@ export function fetchNearbyRestaurants({ lat, lng, radius = 1500, maxPrice } = {
   }
   return apiFetch(`/api/restaurants/nearby?${params.toString()}`)
 }
+
+/**
+ * 키워드로 음식점을 검색한다.
+ * 백엔드에서 Google Places Text Search API를 호출한다.
+ */
+export function searchRestaurants({
+                                    keyword,
+                                    lat,
+                                    lng,
+                                    radius = 1500,
+                                  } = {}) {
+  const params = new URLSearchParams({
+    keyword: String(keyword),
+  })
+
+  if (lat != null) {
+    params.set('lat', String(lat))
+  }
+
+  if (lng != null) {
+    params.set('lng', String(lng))
+  }
+
+  if (radius != null) {
+    params.set('radiusMeters', String(radius))
+  }
+
+  return apiFetch(`/api/restaurants/search?${params.toString()}`)
+}

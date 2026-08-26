@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import '../css/RestaurantList.css'
 
-export default function RestaurantList({ restaurants, onSelect }) {
+export default function RestaurantList({ restaurants, onSelect, onSearch }) {
     const [search, setSearch] = useState('')
     const [showFilter, setShowFilter] = useState(false)
 
@@ -9,9 +9,9 @@ export default function RestaurantList({ restaurants, onSelect }) {
     const [photoIndexes, setPhotoIndexes] = useState({})
     const [reviewIndexes, setReviewIndexes] = useState({})
 
-    if (!restaurants || restaurants.length === 0) {
-        return null
-    }
+    // if (!restaurants || restaurants.length === 0) {
+    //     return null
+    // }
 
     const filteredRestaurants = restaurants.filter((restaurant) =>
         restaurant.name
@@ -83,6 +83,11 @@ export default function RestaurantList({ restaurants, onSelect }) {
                         placeholder="식당 이름 검색"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                onSearch?.(search)
+                            }
+                        }}
                     />
 
                     <button

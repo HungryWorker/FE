@@ -13,6 +13,9 @@ import {
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { fetchNearbyRestaurants, getToken } from '../api'
+import RestaurantList from '../components/RestaurantList'
+import RestaurantPopup from '../components/RestaurantPopup'
+import '../css/Mapview.css'
 
 // 위치 권한이 없거나 실패했을 때 대체로 보여줄 중심 좌표 (서울시청)
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
@@ -94,7 +97,77 @@ export default function MapView() {
   const [mapCenter, setMapCenter] = useState(null)
   const [showResearch, setShowResearch] = useState(false)
 
-  const [restaurants, setRestaurants] = useState([])
+  // const [restaurants, setRestaurants] = useState([])
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null)
+  //더미데이터
+  const [restaurants, setRestaurants] = useState([
+    {
+      id: 1,
+
+      name: '김치찌개 맛집',
+      category: '한식',
+
+      latitude: 37.5668,
+      longitude: 126.9784,
+
+      registeredAt: '8월 24일',
+
+      photos: [
+        'https://images.unsplash.com/photo-1603133872878-684f208fb84b',
+        'https://images.unsplash.com/photo-1547592180-85f173990554',
+        'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f',
+      ],
+
+      address: '서울특별시 종로구 종로 123',
+
+      businessHours: '11:00 ~ 21:00',
+      breakTime: '15:00 ~ 17:00',
+
+      cheapestMenu: '김치찌개',
+      cheapestPrice: 8,
+
+      tags: [
+        '밥',
+        '한식',
+        '혼밥',
+        '가성비',
+      ],
+
+      rating: 4.7,
+      totalScore: 4.7,
+
+      taste: 4.8,
+      portion: 4.5,
+      value: 4.7,
+      hygiene: 4.6,
+
+      reviewCount: 128,
+
+      reviews: [
+        {
+          id: 1,
+          nickname: '맛있는거좋아',
+          profileImage: null,
+          comment: '국물이 진하고 고기가 푸짐해서 정말 맛있었어요!',
+          date: '8월 20일',
+        },
+        {
+          id: 2,
+          nickname: '혼밥러',
+          profileImage: null,
+          comment: '혼자 먹기에도 좋고 가격도 괜찮았습니다.',
+          date: '8월 18일',
+        },
+        {
+          id: 3,
+          nickname: '먹보',
+          profileImage: null,
+          comment: '양이 꽤 많아요. 다음에도 또 올 것 같아요.',
+          date: '8월 15일',
+        },
+      ],
+    }
+  ])
   const [restaurantsLoading, setRestaurantsLoading] = useState(false)
   const [restaurantsError, setRestaurantsError] = useState(null)
   const [needsLogin, setNeedsLogin] = useState(false)
@@ -138,42 +211,42 @@ export default function MapView() {
 
   // searchCenter 또는 $15 필터가 바뀔 때마다 실제 검색을 실행하는 단일 지점.
   // 이벤트 핸들러들은 searchCenter/mapCenter만 갱신하고, 실제 fetch는 항상 여기서만 일어난다.
-  useEffect(() => {
-    if (!searchCenter) return
-
-    let cancelled = false
-    setRestaurantsLoading(true)
-    setRestaurantsError(null)
-    setNeedsLogin(false)
-
-    fetchNearbyRestaurants({
-      lat: searchCenter.lat,
-      lng: searchCenter.lng,
-      radius: SEARCH_RADIUS_M,
-      maxPrice: onlyUnder15 ? 15 : undefined,
-    })
-      .then((list) => {
-        if (cancelled) return
-        setRestaurants(Array.isArray(list) ? list : [])
-        setShowResearch(false)
-      })
-      .catch((e) => {
-        if (cancelled) return
-        if (e.message === 'UNAUTHORIZED') {
-          setNeedsLogin(true)
-        } else {
-          setRestaurantsError('주변 음식점을 불러오지 못했어요. 잠시 후 다시 시도해주세요.')
-        }
-        setRestaurants([])
-      })
-      .finally(() => {
-        if (!cancelled) setRestaurantsLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [searchCenter, onlyUnder15])
+  // useEffect(() => {
+  //   if (!searchCenter) return
+  //
+  //   let cancelled = false
+  //   setRestaurantsLoading(true)
+  //   setRestaurantsError(null)
+  //   setNeedsLogin(false)
+  //
+  //   fetchNearbyRestaurants({
+  //     lat: searchCenter.lat,
+  //     lng: searchCenter.lng,
+  //     radius: SEARCH_RADIUS_M,
+  //     maxPrice: onlyUnder15 ? 15 : undefined,
+  //   })
+  //     .then((list) => {
+  //       if (cancelled) return
+  //       setRestaurants(Array.isArray(list) ? list : [])
+  //       setShowResearch(false)
+  //     })
+  //     .catch((e) => {
+  //       if (cancelled) return
+  //       if (e.message === 'UNAUTHORIZED') {
+  //         setNeedsLogin(true)
+  //       } else {
+  //         setRestaurantsError('주변 음식점을 불러오지 못했어요. 잠시 후 다시 시도해주세요.')
+  //       }
+  //       setRestaurants([])
+  //     })
+  //     .finally(() => {
+  //       if (!cancelled) setRestaurantsLoading(false)
+  //     })
+  //
+  //   return () => {
+  //     cancelled = true
+  //   }
+  // }, [searchCenter, onlyUnder15])
 
   function handleMapMoved(center) {
     setMapCenter(center)
@@ -214,111 +287,129 @@ export default function MapView() {
   }
 
   return (
-    <div className="map-screen">
-      <header className="map-topbar">
-        <button className="map-icon-btn" onClick={() => navigate('/')} aria-label="홈으로">
-          ←
-        </button>
-        <div className="map-topbar-title">
-          <span className="map-topbar-eyebrow">내 주변</span>
-          <strong>맛집 지도</strong>
-        </div>
-        <button
-          className="map-icon-btn"
-          onClick={() => navigate(isLoggedIn ? '/profile' : '/')}
-          aria-label="내 정보"
-        >
-          👤
-        </button>
-      </header>
-
-      <div className="map-banner-stack">
-        {locateNotice && <div className="map-banner">{locateNotice}</div>}
-        {needsLogin && (
-          <div className="map-banner map-banner-action">
-            <span>로그인하면 주변 음식점을 볼 수 있어요</span>
-            <button className="map-banner-link" onClick={() => navigate('/')}>
-              로그인하러 가기
-            </button>
+      <div className="map-screen">
+        <header className="map-topbar">
+          <button className="map-icon-btn" onClick={() => navigate('/')} aria-label="홈으로">
+            ←
+          </button>
+          <div className="map-topbar-title">
+            <span className="map-topbar-eyebrow">내 주변</span>
+            <strong>맛집 지도</strong>
           </div>
-        )}
-        {restaurantsError && <div className="map-banner map-banner-error">{restaurantsError}</div>}
-      </div>
+          <button
+              className="map-icon-btn"
+              onClick={() => navigate(isLoggedIn ? '/profile' : '/')}
+              aria-label="내 정보"
+          >
+            👤
+          </button>
+        </header>
 
-      <MapContainer
-        center={[position.lat, position.lng]}
-        zoom={16}
-        zoomControl={false}
-        className="map-container"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maxZoom={19}
-        />
-        <ZoomControl position="bottomright" />
+        <div className="map-banner-stack">
+          {locateNotice && <div className="map-banner">{locateNotice}</div>}
+          {needsLogin && (
+              <div className="map-banner map-banner-action">
+                <span>로그인하면 주변 음식점을 볼 수 있어요</span>
+                <button className="map-banner-link" onClick={() => navigate('/')}>
+                  로그인하러 가기
+                </button>
+              </div>
+          )}
+          {restaurantsError && <div className="map-banner map-banner-error">{restaurantsError}</div>}
+        </div>
 
-        <Marker position={[position.lat, position.lng]} icon={userIcon} />
-        {accuracy && (
-          <Circle
+        <MapContainer
             center={[position.lat, position.lng]}
-            radius={accuracy}
-            pathOptions={{ color: '#d9a441', fillColor: '#d9a441', fillOpacity: 0.12, weight: 1 }}
+            zoom={16}
+            zoomControl={false}
+            className="map-container"
+        >
+          <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              maxZoom={19}
           />
+          <ZoomControl position="bottomright"/>
+
+          <Marker position={[position.lat, position.lng]} icon={userIcon}/>
+          {accuracy && (
+              <Circle
+                  center={[position.lat, position.lng]}
+                  radius={accuracy}
+                  pathOptions={{color: '#d9a441', fillColor: '#d9a441', fillOpacity: 0.12, weight: 1}}
+              />
+          )}
+
+          {restaurants.map((r) => {
+            const key = r.id ?? r.googlePlaceId
+            if (typeof r.latitude !== 'number' || typeof r.longitude !== 'number') return null
+            return (
+                <Marker
+                    key={key}
+                    position={[r.latitude, r.longitude]}
+                    icon={restaurantIcon(selectedId === key)}
+                    eventHandlers={{
+                      click: () => {
+                        setSelectedId(key)
+                        setSelectedRestaurant(r)
+                      },
+                    }}
+                >
+                  <Popup>
+                    <div className="map-popup">
+                      <strong>{r.name}</strong>
+                      {r.address && <p>{r.address}</p>}
+                      <div className="map-popup-meta">
+                        {typeof r.rating === 'number' && <span>⭐ {r.rating}</span>}
+                        {r.priceLevel != null && <span>💵 {r.priceLevel}</span>}
+                      </div>
+                    </div>
+                  </Popup>
+                </Marker>
+            )
+          })}
+
+          <MapMoveWatcher onMoved={handleMapMoved}/>
+          <FlyToOnRequest target={position} requestId={flyRequest}/>
+        </MapContainer>
+
+        <div className="restaurant-panel">
+          <RestaurantList
+              restaurants={restaurants}
+              onSelect={setSelectedRestaurant}
+          />
+          {selectedRestaurant && (
+              <RestaurantPopup
+                  restaurant={selectedRestaurant}
+                  onClose={() => setSelectedRestaurant(null)}
+              />
+          )}
+
+        </div>
+        {showResearch && (
+            <button className="map-research-btn" onClick={handleResearch}>
+              이 위치에서 다시 검색
+            </button>
         )}
 
-        {restaurants.map((r) => {
-          const key = r.id ?? r.googlePlaceId
-          if (typeof r.latitude !== 'number' || typeof r.longitude !== 'number') return null
-          return (
-            <Marker
-              key={key}
-              position={[r.latitude, r.longitude]}
-              icon={restaurantIcon(selectedId === key)}
-              eventHandlers={{ click: () => setSelectedId(key) }}
-            >
-              <Popup>
-                <div className="map-popup">
-                  <strong>{r.name}</strong>
-                  {r.address && <p>{r.address}</p>}
-                  <div className="map-popup-meta">
-                    {typeof r.rating === 'number' && <span>⭐ {r.rating}</span>}
-                    {r.priceLevel != null && <span>💵 {r.priceLevel}</span>}
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          )
-        })}
-
-        <MapMoveWatcher onMoved={handleMapMoved} />
-        <FlyToOnRequest target={position} requestId={flyRequest} />
-      </MapContainer>
-
-      {showResearch && (
-        <button className="map-research-btn" onClick={handleResearch}>
-          이 위치에서 다시 검색
+        <button className="map-locate-btn" onClick={handleLocateMe} aria-label="내 위치로 이동">
+          ⦿
         </button>
-      )}
 
-      <button className="map-locate-btn" onClick={handleLocateMe} aria-label="내 위치로 이동">
-        ⦿
-      </button>
+        <div className="map-bottom-panel">
+          <label className="map-filter-toggle">
+            <input
+                type="checkbox"
+                checked={onlyUnder15}
+                onChange={(e) => setOnlyUnder15(e.target.checked)}
+            />
+            <span>$15 이하만 보기</span>
+          </label>
 
-      <div className="map-bottom-panel">
-        <label className="map-filter-toggle">
-          <input
-            type="checkbox"
-            checked={onlyUnder15}
-            onChange={(e) => setOnlyUnder15(e.target.checked)}
-          />
-          <span>$15 이하만 보기</span>
-        </label>
-
-        <div className="map-result-count">
-          {restaurantsLoading ? '검색 중...' : `주변 음식점 ${restaurants.length}곳`}
+          <div className="map-result-count">
+            {restaurantsLoading ? '검색 중...' : `주변 음식점 ${restaurants.length}곳`}
+          </div>
         </div>
       </div>
-    </div>
   )
 }

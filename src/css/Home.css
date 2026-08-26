@@ -1,0 +1,196 @@
+
+/* 로그인/회원가입 전 */
+
+.home-logo {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 2px 8px rgba(34, 40, 31, 0.1);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+
+/* 버튼 전체 영역 */
+.home-actions {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap:8px;
+}
+
+/* 모든 Home 버튼 */
+.home-action {
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    margin: 0;
+    border-radius: 10px;
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Google 회원가입 */
+
+.home-google {
+    gap: 10px;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+}
+
+
+/* Google 아이콘 */
+.home-google-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #fff;
+    color: #22281f;
+    color: #22281f;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+
+/* 지도 버튼 */
+.home-secondary {
+    margin: 0;
+}
+
+
+/* ============================================================
+   로그인 / 회원가입 성공 후
+   ============================================================ */
+
+.home-welcome-screen {
+    background: #dcebd8;
+    transition: background-color 0.8s ease;
+}
+
+
+/* 환영 화면 */
+
+.home-welcome-content {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* 환영 문구 */
+
+.home-welcome-message {
+    margin-bottom: 24px;
+
+    color: #22281f;
+
+    font-family: 'Fraunces', serif;
+
+    font-size: 26px;
+    font-weight: 500;
+
+    opacity: 0;
+
+    animation:
+            home-welcome-message-in
+            0.7s
+            ease
+            0.3s
+            forwards;
+}
+
+.home-welcome-message strong {
+    font-weight: 700;
+}
+
+
+/* 로고 → 동물 그림 */
+
+.home-welcome-animal {
+    width: 200px;
+    height: 200px;
+
+    border-radius: 50%;
+
+    overflow: hidden;
+
+    background: #fff;
+
+    box-shadow:
+            0 8px 30px rgba(34, 40, 31, 0.15);
+
+    opacity: 0;
+
+    animation:
+            home-animal-in
+            1s
+            cubic-bezier(0.22, 1, 0.36, 1)
+            forwards;
+}
+
+
+.home-welcome-animal img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+
+/* 애니메이션 */
+
+@keyframes home-welcome-message-in {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@keyframes home-animal-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.4);
+    }
+
+    35% {
+        opacity: 1;
+        transform: scale(1.25);
+    }
+
+    65% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

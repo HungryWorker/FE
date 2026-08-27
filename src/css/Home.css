@@ -1,3 +1,21 @@
+.screen {
+    background-color: #FF9000;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.screen-container {
+    width: 100%;
+    max-width: 380px; /* 너무 넓어지지 않게 꽉 잡아주는 크기 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
 
 /* 로그인/회원가입 전 */
 
@@ -14,7 +32,6 @@
     font-size: 24px;
     font-weight: 700;
 }
-
 
 /* 버튼 전체 영역 */
 .home-actions {
@@ -36,7 +53,8 @@
     justify-content: center;
     padding: 0 16px;
     margin: 0;
-    border-radius: 10px;
+    /*border-radius: 10px;*/
+    border-radius: 50px;
     font-size: 15px;
     text-decoration: none;
     cursor: pointer;
@@ -80,7 +98,7 @@
    ============================================================ */
 
 .home-welcome-screen {
-    background: #dcebd8;
+    background: #FF9000;
     transition: background-color 0.8s ease;
 }
 
@@ -94,6 +112,10 @@
 
     align-items: center;
     justify-content: center;
+}
+
+.home-welcome-content svg {
+    margin-bottom: 10px;
 }
 
 
@@ -121,6 +143,12 @@
 
 .home-welcome-message strong {
     font-weight: 700;
+}
+
+path {
+    fill: none;
+    stroke: transparent;
+    d:"M 50 200 Q 250 50 450 200"
 }
 
 

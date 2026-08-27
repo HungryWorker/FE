@@ -96,6 +96,7 @@ export default function MapView() {
   const [searchCenter, setSearchCenter] = useState(null)
   const [mapCenter, setMapCenter] = useState(null)
   const [showResearch, setShowResearch] = useState(false)
+  const [showSearchPanel, setShowSearchPanel] = useState(false)
 
   const [restaurants, setRestaurants] = useState([])
   const [selectedRestaurant, setSelectedRestaurant] = useState(null)
@@ -272,6 +273,58 @@ export default function MapView() {
           </button>
         </header>
 
+          <div className={`map-sidebar ${showSearchPanel ? 'search-open' : ''}`}>
+              {!showSearchPanel ? (
+                  <>
+                      <button
+                          className="map-sidebar-menu-btn"
+                          onClick={() => setShowSearchPanel(true)}
+                          aria-label="음식점 검색"
+                      >
+                          =
+                      </button>
+
+                      <div className="map-sidebar-title">
+                          음식점 필터
+                      </div>
+
+                      <label className="map-filter-toggle">
+                          <input
+                              type="checkbox"
+                              checked={onlyUnder15}
+                              onChange={(e) => setOnlyUnder15(e.target.checked)}
+                          />
+                          <span>$15 이하만 보기</span>
+                      </label>
+
+                      <div className="map-result-count">
+                          {restaurantsLoading
+                              ? '검색 중...'
+                              : `주변 음식점 ${restaurants.length}곳`}
+                      </div>
+                  </>
+              ) : (
+                  <div className="map-search-panel">
+                      <div className="map-search-header">
+                          <button
+                              className="map-search-back"
+                              onClick={() => setShowSearchPanel(false)}
+                          >
+                              ←
+                          </button>
+
+                          <strong>음식점 검색</strong>
+                      </div>
+
+                      <RestaurantList
+                          restaurants={restaurants}
+                          onSelect={setSelectedRestaurant}
+                          onSearch={handleRestaurantSearch}
+                      />
+                  </div>
+              )}
+          </div>
+
         <div className="map-banner-stack">
           {locateNotice && <div className="map-banner">{locateNotice}</div>}
           {needsLogin && (
@@ -341,11 +394,6 @@ export default function MapView() {
         </MapContainer>
 
         <div className="restaurant-panel">
-          <RestaurantList
-              restaurants={restaurants}
-              onSelect={setSelectedRestaurant}
-              onSearch={handleRestaurantSearch}
-          />
           {selectedRestaurant && (
               <RestaurantPopup
                   restaurant={selectedRestaurant}
@@ -363,7 +411,7 @@ export default function MapView() {
         <button className="map-locate-btn" onClick={handleLocateMe} aria-label="내 위치로 이동">
           ⦿
         </button>
-
+          {/*
         <div className="map-bottom-panel">
           <label className="map-filter-toggle">
             <input
@@ -378,6 +426,7 @@ export default function MapView() {
             {restaurantsLoading ? '검색 중...' : `주변 음식점 ${restaurants.length}곳`}
           </div>
         </div>
+        */}
       </div>
   )
 }

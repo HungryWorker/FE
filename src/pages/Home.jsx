@@ -31,7 +31,7 @@ export default function Home() {
 
         const timer = setTimeout(() => {
             navigate('/map')
-        }, 5000)
+        }, 5000) //5000
 
         return () => clearTimeout(timer)
     }, [hasToken, navigate])
@@ -39,53 +39,20 @@ export default function Home() {
   return (
 
     <div className="screen_home">
-        <div>
-            <img src={logo} alt="로고" className="logo_home" />
-            <a className="btn-google_home" href={googleLoginUrl()}>
-                <GoogleIcon/>
-                Google 계정으로 로그인 하기
-            </a>
-        </div>
-        {/*
-      <div className="card">
-
-        <p className="eyebrow">Hungry Worker</p>
-        <h1>배고픈 우리를 위한 맛집 지도</h1>
-        <p className="sub">
-          구글 계정으로 로그인하면 서버에 회원 정보가 자동으로 저장됩니다.
-          로그인 후 내 정보 화면에서 DB에 저장된 닉네임을 바로 확인할 수 있어요.
-        </p>
-
-        <a className="btn-google" href={googleLoginUrl()}>
-          <GoogleIcon />
-          Google 계정으로 로그인 하기
-        </a>
-
-          <button className="btn-secondary" onClick={() => navigate('/map')}>
-              🗺️ 지도에서 맛집 보기
-          </button>
-
-        {hasToken && (
-          <button className="btn-secondary" onClick={() => navigate('/profile')}>
-            이미 로그인했어요, 내 정보 보기
-          </button>
-        )}
-      </div>
-      */}
-    </div>
 
       <div className={`screen ${hasToken ? 'home-welcome-screen' : ''}`}>
-
+          <div className="screen-container">
           {!hasToken ? (
               <>
-                  <div className="home-logo">로고</div>
-                  <h1>회원 가입</h1>
+                  <img src={logo} alt="로고" className="home-logo" />
+                  <h1>헝그리 워커</h1>
                   <div className="home-actions">
                       <a className="home-action home-login" href={googleLoginUrl()}>
                           이미 회원이신가요?{' '}
-                          <span className="home-login-text">로그인 하기</span></a>
+                          <span className="home-login-text">&nbsp;로그인 하기</span></a>
                       <a className="home-action home-google" href={googleLoginUrl()}>
                           <GoogleIcon/> Google 계정으로 회원 가입하기 </a>
+
                       <button className="home-action home-secondary" onClick={() => navigate('/map')}>
                           🗺️ 지도에서 맛집 보기
                       </button>
@@ -93,15 +60,25 @@ export default function Home() {
               </>
           ) : (
               <div className="home-welcome-content">
-                  <div className="home-welcome-message">
-                      환영합니다, <strong>{nickname}!</strong>
-                  </div>
+                  <svg width="500" height="150" viewBox="0 0 500 150">
+                    {/* 곡선 경로 정의 (가이드라인 선 제거를 위해 fill, stroke 설정) */}
+                  <path id="curvePath" d="M 50 150 Q 250 20 450 150" />
+
+                  {/* 곡선을 따라 흐르는 텍스트 (SVG 전용 스타일 사용) */}
+                  <text className="home-welcome-message">
+                      <textPath href="#curvePath" startOffset="50%" textAnchor="middle">
+                          환영합니다, {nickname || '사용자'}님!
+                      </textPath>
+                  </text>
+              </svg>
                   <div className="home-welcome-animal">
                       <img src="../images/animal.png" alt="환영하는 동물"/>
                   </div>
               </div>
           )}
+          </div>
       </div>
+    </div>
   )
 }
 

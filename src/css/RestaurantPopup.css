@@ -3,10 +3,13 @@
 ========================================================= */
 
 .restaurant-popup {
-    position: relative;
-
-    width: 360px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 480px;
     height: 100%;
+    z-index: 1000;
 
     background: var(--card);
 

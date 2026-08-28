@@ -74,9 +74,6 @@ export default function RestaurantList({ restaurants, onSelect, onSearch }) {
 
                 <div className="restaurant-search-box">
 
-                    <span className="restaurant-search-icon">
-                        🔍
-                    </span>
 
                     <input
                         type="text"
@@ -89,7 +86,9 @@ export default function RestaurantList({ restaurants, onSelect, onSearch }) {
                             }
                         }}
                     />
-
+                    <button className="restaurant-search-btn" onClick={() => onSearch?.(search)}>
+                        🔍
+                    </button>
                     <button
                         className="restaurant-filter-btn"
                         type="button"

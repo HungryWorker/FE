@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import SideBar from '../components/SideBar.jsx'
 import {
   Circle,
   MapContainer,
@@ -273,58 +274,14 @@ export default function MapView() {
           </button>
         </header>
 
-          <div className={`map-sidebar ${showSearchPanel ? 'search-open' : ''}`}>
-              {!showSearchPanel ? (
-                  <>
-                      <button
-                          className="map-sidebar-menu-btn"
-                          onClick={() => setShowSearchPanel(true)}
-                          aria-label="음식점 검색"
-                      >
-                          =
-                      </button>
-
-                      <div className="map-sidebar-title">
-                          음식점 필터
-                      </div>
-
-                      <label className="map-filter-toggle">
-                          <input
-                              type="checkbox"
-                              checked={onlyUnder15}
-                              onChange={(e) => setOnlyUnder15(e.target.checked)}
-                          />
-                          <span>$15 이하만 보기</span>
-                      </label>
-
-                      <div className="map-result-count">
-                          {restaurantsLoading
-                              ? '검색 중...'
-                              : `주변 음식점 ${restaurants.length}곳`}
-                      </div>
-                  </>
-              ) : (
-                  <div className="map-search-panel">
-                      <div className="map-search-header">
-                          <button
-                              className="map-search-back"
-                              onClick={() => setShowSearchPanel(false)}
-                          >
-                              ←
-                          </button>
-
-                          <strong>음식점 검색</strong>
-                      </div>
-
-                      <RestaurantList
-                          restaurants={restaurants}
-                          onSelect={setSelectedRestaurant}
-                          onSearch={handleRestaurantSearch}
-                      />
-                  </div>
-              )}
-          </div>
-
+          <SideBar
+              restaurants={restaurants}
+              restaurantsLoading={restaurantsLoading}
+              onlyUnder15={onlyUnder15}
+              setOnlyUnder15={setOnlyUnder15}
+              onSelectRestaurant={setSelectedRestaurant}
+              onSearch={handleRestaurantSearch}
+          />
         <div className="map-banner-stack">
           {locateNotice && <div className="map-banner">{locateNotice}</div>}
           {needsLogin && (

@@ -14,7 +14,7 @@
     background: white;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 
-    z-index: 1000;
+    z-index: 1002;
 
     display: flex;
     flex-direction: column;
@@ -55,7 +55,7 @@
     top: 0;
     left: 50px;
 
-    width: 350px;
+    width: 360px;
     height: 100vh;
 
     box-sizing: border-box;
@@ -64,7 +64,7 @@
 
     overflow-y: auto;
 
-    z-index: 1001;
+    z-index: 700;
 
     transform: translateX(-150%);
     transition: transform 0.3s ease;
@@ -111,4 +111,7 @@
 
 .map-search-back:hover {
     background: #eaeaea;
+}
+#home {
+    color: #FF9000;
 }

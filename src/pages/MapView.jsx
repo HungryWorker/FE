@@ -275,13 +275,21 @@ export default function MapView() {
         </header>
 
           <SideBar
-              restaurants={restaurants}
-              restaurantsLoading={restaurantsLoading}
-              onlyUnder15={onlyUnder15}
-              setOnlyUnder15={setOnlyUnder15}
-              onSelectRestaurant={setSelectedRestaurant}
-              onSearch={handleRestaurantSearch}
+              onToggleSearch={() => setShowSearchPanel(prev => !prev)}
           />
+
+          <div
+              className={`map-search-panel ${
+                  showSearchPanel ? 'visible' : 'hidden'
+              }`}
+          >
+              <RestaurantList
+                  restaurants={restaurants}
+                  onSelect={setSelectedRestaurant}
+                  onSearch={handleRestaurantSearch}
+                  setShowSearchPanel={setShowSearchPanel}
+              />
+          </div>
         <div className="map-banner-stack">
           {locateNotice && <div className="map-banner">{locateNotice}</div>}
           {needsLogin && (

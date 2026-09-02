@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import '../css/RestaurantPopup.css'
+import { getToken } from '../api'
 
 export default function RestaurantPopup({ restaurant, onClose }) {
     const photosRef = useRef(null)
@@ -13,6 +14,13 @@ export default function RestaurantPopup({ restaurant, onClose }) {
 
     // 댓글 사진
     const [commentImages, setCommentImages] = useState([])
+
+    // 기존 댓글
+    const [reviews, setReviews] = useState(
+        Array.isArray(restaurant?.reviews)
+            ? restaurant.reviews
+            : []
+    )
 
     // 사용자가 입력하는 세부 평점
     const [userScores, setUserScores] = useState({
@@ -29,10 +37,6 @@ export default function RestaurantPopup({ restaurant, onClose }) {
         : restaurant.photoUrl
             ? [restaurant.photoUrl]
             : []
-
-    const reviews = Array.isArray(restaurant.reviews)
-        ? restaurant.reviews
-        : []
 
     const tags = Array.isArray(restaurant.tags)
         ? restaurant.tags
@@ -57,6 +61,13 @@ export default function RestaurantPopup({ restaurant, onClose }) {
             value: 0,
             hygiene: 0,
         })
+
+        // 식당이 바뀌면 해당 식당의 리뷰로 변경
+        setReviews(
+            Array.isArray(restaurant?.reviews)
+                ? restaurant.reviews
+                : []
+        )
 
         if (photosRef.current) {
             photosRef.current.scrollLeft = 0
@@ -189,13 +200,9 @@ export default function RestaurantPopup({ restaurant, onClose }) {
     /*
      * 별점 선택
      *
-     * 1 = 빈별
-     * 0.5 = 반쪽별
-     * 0 = 없음
-     *
-     * 별 하나를 클릭하면 1점
-     * 같은 별을 다시 클릭하면 0.5점
-     * 다시 클릭하면 0점
+     * 1 클릭 → 1점
+     * 같은 별 다시 클릭 → 0.5점
+     * 0.5점 상태에서 다시 클릭 → 0점
      */
     const handleScoreClick = (
         type,
@@ -230,7 +237,7 @@ export default function RestaurantPopup({ restaurant, onClose }) {
     /*
      * 댓글 등록
      */
-    const handleSubmitComment = () => {
+    const handleSubmitComment = async () => {
         const text =
             commentText.trim()
 
@@ -238,6 +245,7 @@ export default function RestaurantPopup({ restaurant, onClose }) {
             Object.values(userScores)
                 .some((score) => score > 0)
 
+        // 아무것도 입력하지 않았으면 등록하지 않음
         if (
             !text &&
             commentImages.length === 0 &&
@@ -246,17 +254,16 @@ export default function RestaurantPopup({ restaurant, onClose }) {
             return
         }
 
+        const restaurantId =
+            restaurant.id ??
+            restaurant.googlePlaceId
+
         console.log(
             '리뷰 등록:',
             {
-                restaurantId:
-                    restaurant.id ??
-                    restaurant.googlePlaceId,
-
+                restaurantId,
                 scores: userScores,
-
                 text,
-
                 images:
                     commentImages.map(
                         (item) => item.file
@@ -264,13 +271,114 @@ export default function RestaurantPopup({ restaurant, onClose }) {
             }
         )
 
-        /*
-         * TODO:
-         * 여기서 실제 API 연결
-         */
+        const formData = new FormData()
 
+        formData.append(
+            'content',
+            text
+        )
+
+        formData.append(
+            'tasteScore',
+            String(userScores.taste)
+        )
+
+        formData.append(
+            'portionScore',
+            String(userScores.portion)
+        )
+
+        formData.append(
+            'valueScore',
+            String(userScores.value)
+        )
+
+        formData.append(
+            'hygieneScore',
+            String(userScores.hygiene)
+        )
+
+        commentImages.forEach((item) => {
+            formData.append(
+                'images',
+                item.file
+            )
+        })
+
+        try {
+            const token = getToken()
+
+            const response = await fetch(
+                `/api/restaurants/${restaurantId}/reviews`,
+                {
+                    method: 'POST',
+                    headers: {
+                        ...(token
+                            ? {
+                                Authorization:
+                                    `Bearer ${token}`,
+                            }
+                            : {}),
+                    },
+                    body: formData,
+                    credentials: 'include',
+                }
+            )
+
+            if (!response.ok) {
+                const errorText =
+                    await response.text()
+
+                console.error(
+                    '리뷰 등록 실패:',
+                    response.status,
+                    errorText
+                )
+
+                return
+            }
+
+            const result =
+                await response.json()
+
+            console.log(
+                '리뷰 등록 성공:',
+                result
+            )
+
+            /*
+             * 중요:
+             * 서버에서 등록된 리뷰를
+             * 화면의 리뷰 목록 맨 앞에 바로 추가
+             */
+            setReviews((prev) => [
+                result,
+                ...prev,
+            ])
+
+            /*
+             * reviewCount도 즉시 반영하기 위해
+             * 별도 state를 만들지는 않고
+             * 현재 reviews.length 기준으로 표시함.
+             */
+
+        } catch (error) {
+            console.error(
+                '리뷰 등록 중 오류:',
+                error
+            )
+
+            return
+        }
+
+        /*
+         * 입력창 초기화
+         */
         setCommentText('')
 
+        /*
+         * 미리보기 URL 제거
+         */
         commentImages.forEach((item) => {
             if (item.url) {
                 URL.revokeObjectURL(
@@ -281,6 +389,9 @@ export default function RestaurantPopup({ restaurant, onClose }) {
 
         setCommentImages([])
 
+        /*
+         * 별점 초기화
+         */
         setUserScores({
             taste: 0,
             portion: 0,
@@ -288,6 +399,9 @@ export default function RestaurantPopup({ restaurant, onClose }) {
             hygiene: 0,
         })
 
+        /*
+         * textarea 높이 초기화
+         */
         if (
             commentInputRef.current
         ) {
@@ -540,8 +654,7 @@ export default function RestaurantPopup({ restaurant, onClose }) {
                     <h3>
                         댓글
                         <span>
-                            {restaurant.reviewCount ??
-                                reviews.length}
+                            {reviews.length}
                         </span>
                     </h3>
                 </div>
@@ -714,6 +827,8 @@ export default function RestaurantPopup({ restaurant, onClose }) {
                                         index
                                     }
                                 >
+
+                                    {/* 프로필 */}
                                     <div className="restaurant-comment-profile">
 
                                         {review.profileImage ? (
@@ -734,6 +849,8 @@ export default function RestaurantPopup({ restaurant, onClose }) {
 
                                     </div>
 
+
+                                    {/* 리뷰 내용 */}
                                     <div className="restaurant-comment-body">
 
                                         <strong>
@@ -741,18 +858,117 @@ export default function RestaurantPopup({ restaurant, onClose }) {
                                                 '익명'}
                                         </strong>
 
-                                        <p>
-                                            {review.comment ||
-                                                review.text}
-                                        </p>
+                                        {/* 백엔드 응답은 content */}
+                                        {(
+                                            review.content ??
+                                            review.comment ??
+                                            review.text
+                                        ) && (
+                                            <p>
+                                                {review.content ??
+                                                    review.comment ??
+                                                    review.text}
+                                            </p>
+                                        )}
 
-                                        {review.date && (
+                                        {/* 별점 */}
+                                        {review.rating != null && (
+                                            <div className="restaurant-comment-rating">
+                                                ⭐{' '}
+                                                {Number(
+                                                    review.rating
+                                                ).toFixed(1)}
+                                            </div>
+                                        )}
+
+                                        {/* 세부 별점 */}
+                                        {(
+                                            review.tasteScore != null ||
+                                            review.portionScore != null ||
+                                            review.valueScore != null ||
+                                            review.hygieneScore != null
+                                        ) && (
+                                            <div className="restaurant-comment-detail-scores">
+
+                                                {review.tasteScore != null && (
+                                                    <span>
+                                                        맛{' '}
+                                                        {Number(
+                                                            review.tasteScore
+                                                        ).toFixed(1)}
+                                                    </span>
+                                                )}
+
+                                                {review.portionScore != null && (
+                                                    <span>
+                                                        양{' '}
+                                                        {Number(
+                                                            review.portionScore
+                                                        ).toFixed(1)}
+                                                    </span>
+                                                )}
+
+                                                {review.valueScore != null && (
+                                                    <span>
+                                                        값{' '}
+                                                        {Number(
+                                                            review.valueScore
+                                                        ).toFixed(1)}
+                                                    </span>
+                                                )}
+
+                                                {review.hygieneScore != null && (
+                                                    <span>
+                                                        위생{' '}
+                                                        {Number(
+                                                            review.hygieneScore
+                                                        ).toFixed(1)}
+                                                    </span>
+                                                )}
+
+                                            </div>
+                                        )}
+
+                                        {/* 날짜 */}
+                                        {(
+                                            review.date ||
+                                            review.createdAt
+                                        ) && (
                                             <span className="restaurant-comment-date">
-                                                {review.date}
+                                                {review.date ||
+                                                    review.createdAt}
                                             </span>
                                         )}
 
+                                        {/* 리뷰 사진 */}
+                                        {Array.isArray(
+                                                review.imageUrls
+                                            ) &&
+                                            review.imageUrls.length > 0 && (
+                                                <div className="restaurant-comment-review-images">
+
+                                                    {review.imageUrls.map(
+                                                        (
+                                                            imageUrl,
+                                                            imageIndex
+                                                        ) => (
+                                                            <img
+                                                                key={
+                                                                    imageIndex
+                                                                }
+                                                                src={
+                                                                    imageUrl
+                                                                }
+                                                                alt={`리뷰 사진 ${imageIndex + 1}`}
+                                                            />
+                                                        )
+                                                    )}
+
+                                                </div>
+                                            )}
+
                                     </div>
+
                                 </div>
                             )
                         )

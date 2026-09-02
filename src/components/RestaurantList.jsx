@@ -13,11 +13,11 @@ export default function RestaurantList({ restaurants, onSelect, onSearch, setSho
     //     return null
     // }
 
-    const filteredRestaurants = restaurants.filter((restaurant) =>
-        restaurant.name
-            ?.toLowerCase()
-            .includes(search.toLowerCase())
-    )
+    // const filteredRestaurants = restaurants.filter((restaurant) =>
+    //     restaurant.name
+    //         ?.toLowerCase()
+    //         .includes(search.toLowerCase())
+    // )
 
     // =========================
     // 사진 이동
@@ -125,7 +125,7 @@ export default function RestaurantList({ restaurants, onSelect, onSearch, setSho
                 검색 결과
             ========================= */}
 
-            {filteredRestaurants.length === 0 ? (
+            {restaurants.length === 0 ? (
 
                 <div className="restaurant-empty">
                     검색 결과가 없어요.
@@ -133,7 +133,7 @@ export default function RestaurantList({ restaurants, onSelect, onSearch, setSho
 
             ) : (
 
-                filteredRestaurants.map((restaurant) => {
+                restaurants.map((restaurant) => {
 
                     const key =
                         restaurant.id ??

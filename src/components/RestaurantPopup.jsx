@@ -2,7 +2,47 @@ import { useEffect, useRef, useState } from 'react'
 import '../css/RestaurantPopup.css'
 import { getToken } from '../api'
 
-export default function RestaurantPopup({ restaurant, onClose }) {
+/*
+ * 별점을 ★★★★☆ 형태의 문자열로 변환.
+ * 0~5 범위를 벗어나거나 값이 없으면 0으로 처리한다.
+ */
+function renderStars(score) {
+    const rounded = Math.min(
+        5,
+        Math.max(0, Math.round(Number(score) || 0))
+    )
+
+    return '★'.repeat(rounded) + '☆'.repeat(5 - rounded)
+}
+
+// 리뷰 세부 별점 4항목 메타데이터
+const DETAIL_SCORE_META = [
+    {
+        key: 'tasteScore',
+        label: '맛',
+        icon: '🍽️',
+    },
+    {
+        key: 'portionScore',
+        label: '양',
+        icon: '🍚',
+    },
+    {
+        key: 'valueScore',
+        label: '값',
+        icon: '💰',
+    },
+    {
+        key: 'hygieneScore',
+        label: '위생',
+        icon: '🧼',
+    },
+]
+
+export default function RestaurantPopup({
+                                            restaurant,
+                                            onClose,
+                                        }) {
     const photosRef = useRef(null)
     const commentInputRef = useRef(null)
     const fileInputRef = useRef(null)
@@ -16,11 +56,7 @@ export default function RestaurantPopup({ restaurant, onClose }) {
     const [commentImages, setCommentImages] = useState([])
 
     // 기존 댓글
-    const [reviews, setReviews] = useState(
-        Array.isArray(restaurant?.reviews)
-            ? restaurant.reviews
-            : []
-    )
+    const [reviews, setReviews] = useState([])
 
     // 사용자가 입력하는 세부 평점
     const [userScores, setUserScores] = useState({
@@ -29,6 +65,13 @@ export default function RestaurantPopup({ restaurant, onClose }) {
         value: 0,
         hygiene: 0,
     })
+
+    useEffect(() => {
+        // 아래 ③의 코드
+    }, [
+        restaurant?.id,
+        restaurant?.googlePlaceId,
+    ])
 
     if (!restaurant) return null
 
@@ -62,13 +105,6 @@ export default function RestaurantPopup({ restaurant, onClose }) {
             hygiene: 0,
         })
 
-        // 식당이 바뀌면 해당 식당의 리뷰로 변경
-        setReviews(
-            Array.isArray(restaurant?.reviews)
-                ? restaurant.reviews
-                : []
-        )
-
         if (photosRef.current) {
             photosRef.current.scrollLeft = 0
         }
@@ -76,6 +112,67 @@ export default function RestaurantPopup({ restaurant, onClose }) {
         if (commentInputRef.current) {
             commentInputRef.current.style.height = 'auto'
         }
+
+        const loadReviews = async () => {
+            const restaurantId =
+                restaurant?.id ??
+                restaurant?.googlePlaceId
+
+            if (!restaurantId) {
+                setReviews([])
+                return
+            }
+
+            try {
+                const token = getToken()
+
+                const response = await fetch(
+                    `/api/restaurants/${restaurantId}/reviews`,
+                    {
+                        headers: {
+                            ...(token
+                                ? {
+                                    Authorization: `Bearer ${token}`,
+                                }
+                                : {}),
+                        },
+                        credentials: 'include',
+                    }
+                )
+
+                if (!response.ok) {
+                    console.error(
+                        '리뷰 불러오기 실패:',
+                        response.status
+                    )
+
+                    setReviews([])
+                    return
+                }
+
+                const data = await response.json()
+
+                console.log(
+                    '리뷰 불러오기 성공:',
+                    data
+                )
+
+                setReviews(
+                    Array.isArray(data)
+                        ? data
+                        : []
+                )
+            } catch (error) {
+                console.error(
+                    '리뷰 불러오기 오류:',
+                    error
+                )
+
+                setReviews([])
+            }
+        }
+
+        loadReviews()
     }, [
         restaurant?.id,
         restaurant?.googlePlaceId,
@@ -258,19 +355,6 @@ export default function RestaurantPopup({ restaurant, onClose }) {
             restaurant.id ??
             restaurant.googlePlaceId
 
-        console.log(
-            '리뷰 등록:',
-            {
-                restaurantId,
-                scores: userScores,
-                text,
-                images:
-                    commentImages.map(
-                        (item) => item.file
-                    ),
-            }
-        )
-
         const formData = new FormData()
 
         formData.append(
@@ -346,21 +430,11 @@ export default function RestaurantPopup({ restaurant, onClose }) {
                 result
             )
 
-            /*
-             * 중요:
-             * 서버에서 등록된 리뷰를
-             * 화면의 리뷰 목록 맨 앞에 바로 추가
-             */
+            // 새 리뷰를 화면에 바로 추가
             setReviews((prev) => [
                 result,
                 ...prev,
             ])
-
-            /*
-             * reviewCount도 즉시 반영하기 위해
-             * 별도 state를 만들지는 않고
-             * 현재 reviews.length 기준으로 표시함.
-             */
 
         } catch (error) {
             console.error(
@@ -407,6 +481,75 @@ export default function RestaurantPopup({ restaurant, onClose }) {
         ) {
             commentInputRef.current.style.height =
                 'auto'
+        }
+    }
+
+    /*
+     * 리뷰 추천 / 비추천
+     */
+    const handleReaction = async (
+        reviewId,
+        type
+    ) => {
+        const token = getToken()
+
+        if (!token) {
+            alert('로그인 후 이용할 수 있어요.')
+            return
+        }
+
+        try {
+            const response = await fetch(
+                `/api/reviews/${reviewId}/reaction`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type':
+                            'application/json',
+                        Authorization:
+                            `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        type,
+                    }),
+                    credentials: 'include',
+                }
+            )
+
+            if (!response.ok) {
+                console.error(
+                    '리뷰 반응 처리 실패:',
+                    response.status
+                )
+
+                return
+            }
+
+            const summary =
+                await response.json()
+
+            // 해당 리뷰만 최신 상태로 갱신
+            setReviews((prev) =>
+                prev.map((review) =>
+                    review.id === reviewId
+                        ? {
+                            ...review,
+                            likeCount:
+                            summary.likeCount,
+                            dislikeCount:
+                            summary.dislikeCount,
+                            myReaction:
+                            summary.myReaction,
+                        }
+                        : review
+                )
+            )
+
+        } catch (error) {
+            console.error(
+                '리뷰 반응 처리 중 오류:',
+                error
+            )
         }
     }
 
@@ -463,30 +606,7 @@ export default function RestaurantPopup({ restaurant, onClose }) {
                 <div className="restaurant-total-rating">
 
                     <div className="restaurant-stars">
-                        {'★'.repeat(
-                            Math.min(
-                                5,
-                                Math.max(
-                                    0,
-                                    Math.round(
-                                        Number(totalScore) || 0
-                                    )
-                                )
-                            )
-                        )}
-
-                        {'☆'.repeat(
-                            5 -
-                            Math.min(
-                                5,
-                                Math.max(
-                                    0,
-                                    Math.round(
-                                        Number(totalScore) || 0
-                                    )
-                                )
-                            )
-                        )}
+                        {renderStars(totalScore)}
                     </div>
 
                     <strong>
@@ -651,12 +771,14 @@ export default function RestaurantPopup({ restaurant, onClose }) {
             <section className="restaurant-review-section">
 
                 <div className="restaurant-review-title">
+
                     <h3>
                         댓글
                         <span>
                             {reviews.length}
                         </span>
                     </h3>
+
                 </div>
 
 
@@ -774,6 +896,7 @@ export default function RestaurantPopup({ restaurant, onClose }) {
 
 
                     {/* 첨부 이미지 */}
+
                     {commentImages.length > 0 && (
                         <div className="restaurant-comment-images">
 
@@ -783,6 +906,7 @@ export default function RestaurantPopup({ restaurant, onClose }) {
                                         className="restaurant-comment-image"
                                         key={`${image.url}-${index}`}
                                     >
+
                                         <img
                                             src={image.url}
                                             alt={`첨부 사진 ${index + 1}`}
@@ -800,6 +924,7 @@ export default function RestaurantPopup({ restaurant, onClose }) {
                                         >
                                             ×
                                         </button>
+
                                     </div>
                                 )
                             )}
@@ -819,158 +944,259 @@ export default function RestaurantPopup({ restaurant, onClose }) {
                     {reviews.length > 0 ? (
 
                         reviews.map(
-                            (review, index) => (
-                                <div
-                                    className="restaurant-comment"
-                                    key={
-                                        review.id ??
-                                        index
-                                    }
-                                >
+                            (review, index) => {
 
-                                    {/* 프로필 */}
-                                    <div className="restaurant-comment-profile">
+                                const reviewKey =
+                                    review.id ?? index
 
-                                        {review.profileImage ? (
-                                            <img
-                                                src={
-                                                    review.profileImage
-                                                }
-                                                alt={
-                                                    review.nickname ||
-                                                    '사용자'
-                                                }
-                                            />
-                                        ) : (
-                                            <div className="restaurant-comment-avatar">
-                                                👤
-                                            </div>
-                                        )}
+                                const hasDetailScores =
+                                    DETAIL_SCORE_META.some(
+                                        (meta) =>
+                                            review[meta.key] != null
+                                    )
 
-                                    </div>
+                                return (
+                                    <div
+                                        className="restaurant-comment"
+                                        key={reviewKey}
+                                    >
+
+                                        {/* 프로필 */}
+
+                                        <div className="restaurant-comment-profile">
+
+                                            {review.profileImage ? (
+                                                <img
+                                                    src={
+                                                        review.profileImage
+                                                    }
+                                                    alt={
+                                                        review.nickname ||
+                                                        '사용자'
+                                                    }
+                                                />
+                                            ) : (
+                                                <div className="restaurant-comment-avatar">
+                                                    👤
+                                                </div>
+                                            )}
+
+                                        </div>
 
 
-                                    {/* 리뷰 내용 */}
-                                    <div className="restaurant-comment-body">
+                                        {/* 리뷰 내용 */}
 
-                                        <strong>
-                                            {review.nickname ||
-                                                '익명'}
-                                        </strong>
+                                        <div className="restaurant-comment-body">
 
-                                        {/* 백엔드 응답은 content */}
-                                        {(
-                                            review.content ??
-                                            review.comment ??
-                                            review.text
-                                        ) && (
-                                            <p>
-                                                {review.content ??
-                                                    review.comment ??
-                                                    review.text}
-                                            </p>
-                                        )}
+                                            <strong>
+                                                {review.nickname ||
+                                                    '익명'}
+                                            </strong>
 
-                                        {/* 별점 */}
-                                        {review.rating != null && (
-                                            <div className="restaurant-comment-rating">
-                                                ⭐{' '}
-                                                {Number(
-                                                    review.rating
-                                                ).toFixed(1)}
-                                            </div>
-                                        )}
 
-                                        {/* 세부 별점 */}
-                                        {(
-                                            review.tasteScore != null ||
-                                            review.portionScore != null ||
-                                            review.valueScore != null ||
-                                            review.hygieneScore != null
-                                        ) && (
-                                            <div className="restaurant-comment-detail-scores">
+                                            {/* 총점 */}
 
-                                                {review.tasteScore != null && (
-                                                    <span>
-                                                        맛{' '}
-                                                        {Number(
-                                                            review.tasteScore
-                                                        ).toFixed(1)}
-                                                    </span>
+                                            {review.rating != null &&
+                                                review.rating > 0 && (
+                                                    <div className="restaurant-comment-rating">
+
+                                                        <span className="restaurant-comment-rating-stars">
+                                                            {renderStars(
+                                                                review.rating
+                                                            )}
+                                                        </span>
+
+                                                        <b className="restaurant-comment-rating-number">
+                                                            {Number(
+                                                                review.rating
+                                                            ).toFixed(1)}
+                                                        </b>
+
+                                                    </div>
                                                 )}
 
-                                                {review.portionScore != null && (
-                                                    <span>
-                                                        양{' '}
-                                                        {Number(
-                                                            review.portionScore
-                                                        ).toFixed(1)}
-                                                    </span>
-                                                )}
 
-                                                {review.valueScore != null && (
-                                                    <span>
-                                                        값{' '}
-                                                        {Number(
-                                                            review.valueScore
-                                                        ).toFixed(1)}
-                                                    </span>
-                                                )}
+                                            {/* 세부 별점 */}
 
-                                                {review.hygieneScore != null && (
-                                                    <span>
-                                                        위생{' '}
-                                                        {Number(
-                                                            review.hygieneScore
-                                                        ).toFixed(1)}
-                                                    </span>
-                                                )}
+                                            {hasDetailScores && (
+                                                <div className="restaurant-comment-detail-scores">
 
-                                            </div>
-                                        )}
+                                                    {DETAIL_SCORE_META.map(
+                                                        (meta) => {
 
-                                        {/* 날짜 */}
-                                        {(
-                                            review.date ||
-                                            review.createdAt
-                                        ) && (
-                                            <span className="restaurant-comment-date">
-                                                {review.date ||
-                                                    review.createdAt}
-                                            </span>
-                                        )}
+                                                            const value =
+                                                                review[
+                                                                    meta.key
+                                                                    ]
 
-                                        {/* 리뷰 사진 */}
-                                        {Array.isArray(
-                                                review.imageUrls
-                                            ) &&
-                                            review.imageUrls.length > 0 && (
-                                                <div className="restaurant-comment-review-images">
+                                                            if (
+                                                                value ==
+                                                                null ||
+                                                                value <= 0
+                                                            ) {
+                                                                return null
+                                                            }
 
-                                                    {review.imageUrls.map(
-                                                        (
-                                                            imageUrl,
-                                                            imageIndex
-                                                        ) => (
-                                                            <img
-                                                                key={
-                                                                    imageIndex
-                                                                }
-                                                                src={
-                                                                    imageUrl
-                                                                }
-                                                                alt={`리뷰 사진 ${imageIndex + 1}`}
-                                                            />
-                                                        )
+                                                            return (
+                                                                <span
+                                                                    className="restaurant-comment-score-chip"
+                                                                    key={
+                                                                        meta.key
+                                                                    }
+                                                                >
+
+                                                                    <span className="restaurant-comment-score-chip-icon">
+                                                                        {
+                                                                            meta.icon
+                                                                        }
+                                                                    </span>
+
+                                                                    <span className="restaurant-comment-score-chip-label">
+                                                                        {
+                                                                            meta.label
+                                                                        }
+                                                                    </span>
+
+                                                                    <span className="restaurant-comment-score-chip-stars">
+                                                                        {renderStars(
+                                                                            value
+                                                                        )}
+                                                                    </span>
+
+                                                                    <span className="restaurant-comment-score-chip-value">
+                                                                        {Number(
+                                                                            value
+                                                                        ).toFixed(
+                                                                            1
+                                                                        )}
+                                                                    </span>
+
+                                                                </span>
+                                                            )
+                                                        }
                                                     )}
 
                                                 </div>
                                             )}
 
-                                    </div>
 
-                                </div>
-                            )
+                                            {/* 댓글 텍스트 */}
+
+                                            {(
+                                                review.content ??
+                                                review.comment ??
+                                                review.text
+                                            ) && (
+                                                <p>
+                                                    {review.content ??
+                                                        review.comment ??
+                                                        review.text}
+                                                </p>
+                                            )}
+
+
+                                            {/* 날짜 */}
+
+                                            {(
+                                                review.date ||
+                                                review.createdAt
+                                            ) && (
+                                                <span className="restaurant-comment-date">
+                                                    {review.date ||
+                                                        review.createdAt}
+                                                </span>
+                                            )}
+
+
+                                            {/* 리뷰 사진 */}
+
+                                            {Array.isArray(
+                                                    review.imageUrls
+                                                ) &&
+                                                review.imageUrls.length >
+                                                0 && (
+                                                    <div className="restaurant-comment-review-images">
+
+                                                        {review.imageUrls.map(
+                                                            (
+                                                                imageUrl,
+                                                                imageIndex
+                                                            ) => (
+                                                                <img
+                                                                    key={
+                                                                        imageIndex
+                                                                    }
+                                                                    src={
+                                                                        imageUrl
+                                                                    }
+                                                                    alt={`리뷰 사진 ${imageIndex + 1}`}
+                                                                />
+                                                            )
+                                                        )}
+
+                                                    </div>
+                                                )}
+
+
+                                            {/* 도움돼요 / 도움 안돼요 */}
+
+                                            {review.id != null && (
+                                                <div className="restaurant-comment-reactions">
+
+                                                    <button
+                                                        type="button"
+                                                        className={
+                                                            `restaurant-comment-reaction-btn ${
+                                                                review.myReaction ===
+                                                                'LIKE'
+                                                                    ? 'active-like'
+                                                                    : ''
+                                                            }`
+                                                        }
+                                                        onClick={() =>
+                                                            handleReaction(
+                                                                review.id,
+                                                                'LIKE'
+                                                            )
+                                                        }
+                                                        aria-label="도움이 됐어요"
+                                                    >
+                                                        👍 도움돼요{' '}
+                                                        {review.likeCount ??
+                                                            0}
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        className={
+                                                            `restaurant-comment-reaction-btn ${
+                                                                review.myReaction ===
+                                                                'DISLIKE'
+                                                                    ? 'active-dislike'
+                                                                    : ''
+                                                            }`
+                                                        }
+                                                        onClick={() =>
+                                                            handleReaction(
+                                                                review.id,
+                                                                'DISLIKE'
+                                                            )
+                                                        }
+                                                        aria-label="도움이 안됐어요"
+                                                    >
+                                                        👎{' '}
+                                                        {review.dislikeCount ??
+                                                            0}
+                                                    </button>
+
+                                                </div>
+                                            )}
+
+                                        </div>
+
+                                    </div>
+                                )
+                            }
                         )
 
                     ) : (

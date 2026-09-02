@@ -4,11 +4,13 @@
 
 .restaurant-list {
     position: fixed;
-    top: 50px;
+    top: 0;
     left: 0;
 
     width: 360px;
-    height: 100vh;
+    height: 100%;
+
+    z-index: 100;
 
     flex: 0 0 360px;
 

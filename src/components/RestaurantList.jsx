@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import '../css/RestaurantList.css'
 
-export default function RestaurantList({ restaurants, onSelect, onSearch }) {
+export default function RestaurantList({ restaurants, onSelect, onSearch, setShowSearchPanel }) {
     const [search, setSearch] = useState('')
     const [showFilter, setShowFilter] = useState(false)
 

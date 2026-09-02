@@ -2,27 +2,16 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { fetchNearbyRestaurants, searchRestaurants, getToken, } from '../api.js'
-import RestaurantList from './RestaurantList.jsx'
-import RestaurantPopup from './RestaurantPopup.jsx'
 import '../css/SideBar.css'
 
 
-export default function SideBar( {
-    restaurants,
-        restaurantsLoading,
-        onlyUnder15,
-        setOnlyUnder15,
-        onSelectRestaurant,
-        onSearch,
-}) {
-    const [showSearchPanel, setShowSearchPanel] = useState(false)
-
+export default function SideBar({onToggleSearch}) {
     return (
         <div
             className={'map-sidebar'}>
-                <>
                     <button
                         className="map-sidebar-menu-btn"
+                        id="home"
                         onClick={() => {
                             // 홈 기능
                         }}
@@ -33,7 +22,7 @@ export default function SideBar( {
 
                     <button
                         className="map-sidebar-menu-btn"
-                        onClick={() => setShowSearchPanel(true)}
+                        onClick={onToggleSearch}
                         aria-label="음식점 검색"
                     >
                         =
@@ -48,33 +37,6 @@ export default function SideBar( {
                     >
                         +
                     </button>
-                </>
-
-
-            <div
-                className={`map-search-panel ${
-        showSearchPanel ? 'visible' : 'hidden'
-    }`}
-            >
-                <div className="map-search-header">
-                    <button
-                        className="map-search-back"
-                        onClick={() => {
-                            setShowSearchPanel(false)}
-                        }
-                    >
-                        ←
-                    </button>
-
-                    <strong>음식점 검색</strong>
-                </div>
-
-                <RestaurantList
-                    restaurants={restaurants}
-                    onSelect={onSelectRestaurant}
-                    onSearch={onSearch}
-                />
-            </div>
         </div>
     )
 }

@@ -1,0 +1,398 @@
+.restaurant-create-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 2000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.restaurant-create-popup {
+    position: relative;
+
+    width: 710px;
+    height: 90vh;
+
+    box-sizing: border-box;
+
+    padding: 45px 35px 30px;
+
+    background: #fff;
+
+    border-radius: 35px;
+
+    overflow-y: auto;
+
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+}
+
+
+/* 닫기 */
+
+.restaurant-create-popup .restaurant-popup-close {
+    position: absolute;
+
+    top: 20px;
+    right: 25px;
+
+    border: none;
+    background: transparent;
+
+    font-size: 38px;
+    font-weight: 500;
+
+    color: #3d250d;
+
+    cursor: pointer;
+}
+
+
+/* 제목 */
+
+.restaurant-create-title {
+    margin: 0 0 30px;
+
+    font-size: 38px;
+    font-weight: 800;
+
+    color: #3d250d;
+}
+
+
+/* 검색 */
+
+.create-search-row {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    height: 58px;
+
+    border: 2px solid #d3ccc4;
+    border-radius: 30px;
+
+    box-sizing: border-box;
+
+    padding: 0 18px;
+}
+
+.create-search-row input {
+    flex: 1;
+
+    border: none;
+    outline: none;
+
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.create-search-row input::placeholder {
+    color: #c5bdb4;
+}
+
+.create-search-row button {
+    border: none;
+    background: transparent;
+
+    font-size: 25px;
+
+    cursor: pointer;
+}
+
+
+/* 식당 정보 */
+
+.restaurant-create-info {
+    margin: 14px 5px;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    color: #3d250d;
+}
+
+
+/* 공통 input */
+
+.create-full-input {
+    width: 100%;
+    height: 48px;
+
+    box-sizing: border-box;
+
+    border: 2px solid #d3ccc4;
+    border-radius: 25px;
+
+    padding: 0 20px;
+
+    outline: none;
+
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.create-full-input::placeholder {
+    color: #c5bdb4;
+}
+
+
+/* 섹션 */
+
+.create-section {
+    margin-top: 45px;
+}
+
+.create-section h2 {
+    margin: 0 0 18px;
+
+    font-size: 25px;
+    font-weight: 800;
+
+    color: #3d250d;
+}
+
+
+/* 카테고리 */
+
+.category-grid {
+    display: grid;
+
+    grid-template-columns: repeat(6, 1fr);
+
+    gap: 15px 10px;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    border: none;
+    background: transparent;
+
+    font-size: 17px;
+
+    color: #3d250d;
+
+    cursor: pointer;
+}
+
+.category-checkbox {
+    width: 20px;
+    height: 20px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: 2px solid #3d250d;
+
+    box-sizing: border-box;
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.category-checkbox.checked {
+    background: white;
+}
+
+.category-add-button {
+    width: 38px;
+    height: 30px;
+
+    border: 1px solid #d3ccc4;
+    border-radius: 20px;
+
+    background: white;
+
+    font-size: 20px;
+
+    color: #aaa;
+
+    cursor: pointer;
+}
+
+
+/* 메뉴 */
+
+.menu-price-row {
+    display: flex;
+    gap: 8px;
+
+    margin-bottom: 10px;
+}
+
+.menu-price-row input {
+    height: 48px;
+
+    box-sizing: border-box;
+
+    border: 2px solid #d3ccc4;
+    border-radius: 25px;
+
+    padding: 0 18px;
+
+    outline: none;
+
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.menu-price-row input:first-child {
+    flex: 1;
+}
+
+.menu-price-row input:nth-child(2) {
+    flex: 1;
+}
+
+.menu-confirm-button {
+    width: 100px;
+
+    border: none;
+    border-radius: 25px;
+
+    background: #3d250d;
+    color: white;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.create-description {
+    margin: 8px 4px 0;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #3d250d;
+}
+
+
+/* 태그 */
+
+.tag-list {
+    display: flex;
+    gap: 8px;
+}
+
+.create-tag {
+    padding: 7px 16px;
+
+    border: 1px solid #d3ccc4;
+    border-radius: 20px;
+
+    background: white;
+
+    font-size: 14px;
+
+    color: #6d6258;
+
+    cursor: pointer;
+}
+
+.create-tag.selected {
+    background: #dedbd7;
+}
+
+
+/* 사진 */
+
+.create-photo-section {
+    margin-top: 45px;
+}
+
+.photo-upload-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 48px;
+
+    box-sizing: border-box;
+
+    border: 2px solid #d3ccc4;
+    border-radius: 25px;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    color: #3d250d;
+
+    cursor: pointer;
+}
+
+.photo-preview-list {
+    display: flex;
+    gap: 10px;
+
+    margin-top: 12px;
+
+    overflow-x: auto;
+}
+
+.photo-preview {
+    padding: 8px 12px;
+
+    border-radius: 10px;
+
+    background: #f1efed;
+
+    font-size: 13px;
+}
+
+
+/* 안내문 */
+
+.create-notice {
+    margin-top: 40px;
+
+    font-size: 11px;
+    line-height: 1.5;
+
+    color: #c4bbb3;
+}
+
+
+/* 하단 버튼 */
+
+.create-button-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    margin-top: 25px;
+}
+
+.create-cancel-button,
+.create-submit-button {
+    width: 100px;
+    height: 48px;
+
+    border: none;
+    border-radius: 25px;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.create-cancel-button {
+    background: #c8c4c0;
+    color: white;
+}
+
+.create-submit-button {
+    background: #3d250d;
+    color: white;
+}

@@ -16,6 +16,7 @@ import 'leaflet/dist/leaflet.css'
 import { fetchNearbyRestaurants, searchRestaurants, getToken, } from '../api'
 import RestaurantList from '../components/RestaurantList'
 import RestaurantPopup from '../components/RestaurantPopup'
+import RestaurantCreatePopup from '../components/RestaurantCreatePopup'
 import '../css/Mapview.css'
 
 // 위치 권한이 없거나 실패했을 때 대체로 보여줄 중심 좌표 (서울시청)
@@ -98,6 +99,7 @@ export default function MapView() {
   const [mapCenter, setMapCenter] = useState(null)
   const [showResearch, setShowResearch] = useState(false)
   const [showSearchPanel, setShowSearchPanel] = useState(false)
+    const [showCreatePopup, setShowCreatePopup] = useState(false)
 
   const [restaurants, setRestaurants] = useState([])
   const [selectedRestaurant, setSelectedRestaurant] = useState(null)
@@ -276,6 +278,7 @@ export default function MapView() {
 
           <SideBar
               onToggleSearch={() => setShowSearchPanel(prev => !prev)}
+              onToggleCreate={()=> {setShowCreatePopup(true)}}
           />
 
           <div
@@ -365,6 +368,19 @@ export default function MapView() {
                   onClose={() => setSelectedRestaurant(null)}
               />
           )}
+            {showCreatePopup && (
+                <RestaurantCreatePopup
+                    onClose={() => setShowCreatePopup(false)}
+                    onSubmit={(data) => {
+                        console.log('등록할 식당:', data)
+
+                        // 나중에 여기에서 API 호출
+                        // createRestaurant(data)
+
+                        setShowCreatePopup(false)
+                    }}
+                />
+            )}
 
         </div>
         {showResearch && (

@@ -5,7 +5,7 @@ import { fetchNearbyRestaurants, searchRestaurants, getToken, } from '../api.js'
 import '../css/SideBar.css'
 
 
-export default function SideBar({onToggleSearch}) {
+export default function SideBar({onToggleSearch, onToggleCreate}) {
     return (
         <div
             className={'map-sidebar'}>
@@ -30,9 +30,7 @@ export default function SideBar({onToggleSearch}) {
 
                     <button
                         className="map-sidebar-menu-btn"
-                        onClick={() => {
-                            // 음식점 추가 기능
-                        }}
+                        onClick={onToggleCreate}
                         aria-label="음식점 추가"
                     >
                         +

@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getToken, googleLoginUrl, fetchMe } from '../api'
 import '../css/RestaurantCreatePopup.css'
 
 export default function RestaurantCreatePopup({ onClose, onSubmit }) {
@@ -107,6 +109,35 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
             onSubmit(data)
         }
     }
+    const navigate = useNavigate()
+    const [hasToken, setHasToken] = useState(false)
+    const [nickname, setNickname] = useState('')
+
+    useEffect(() => {
+        const tokenExists = Boolean(getToken())
+
+        setHasToken(tokenExists)
+
+        if (tokenExists) {
+            fetchMe()
+                .then((me) => {
+                    setNickname(me.nickname)
+                })
+                .catch(() => {
+                    setNickname('')
+                })
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!hasToken) return
+
+        const timer = setTimeout(() => {
+            navigate('/map')
+        }, 5000) //5000
+
+        return () => clearTimeout(timer)
+    }, [hasToken, navigate])
 
     return (
         <div className="restaurant-create-overlay">
@@ -125,8 +156,7 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
 
                 {/* 제목 */}
                 <h1 className="restaurant-create-title">
-                    #배고픈쿠키_1234
-                    닉네임
+                    {nickname} 님
                 </h1>
 
                 {/* 식당 검색 */}

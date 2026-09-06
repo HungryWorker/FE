@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { getToken, googleLoginUrl, fetchMe } from '../api'
+import { getToken, fetchMe, searchRestaurants } from '../api'
 import '../css/RestaurantCreatePopup.css'
 
 export default function RestaurantCreatePopup({ onClose, onSubmit }) {
     const [restaurantName, setRestaurantName] = useState('')
     const [breakTime, setBreakTime] = useState('')
+
+    const [searchResults, setSearchResults] = useState([])
+    const [searching, setSearching] = useState(false)
+    const [selectedRestaurant, setSelectedRestaurant] = useState(null)
 
     const [categories, setCategories] = useState({
         rice: false,
@@ -29,10 +32,26 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
     ])
 
     const [tags, setTags] = useState([])
-
     const [photos, setPhotos] = useState([])
 
+    const [hasToken, setHasToken] = useState(false)
+    const [nickname, setNickname] = useState('')
+
     const tagOptions = ['할랄', '비건', '온리 런치']
+
+    const categoryLabels = {
+        rice: '밥',
+        bread: '빵',
+        noodles: '면',
+        soup: '탕',
+        salad: '샐러드',
+        coffee: '커피',
+        australia: '호주',
+        korea: '한식',
+        japan: '일식',
+        india: '인도',
+        usa: '미국',
+    }
 
     const toggleCategory = (category) => {
         setCategories(prev => ({
@@ -70,12 +89,64 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
     }
 
     const handlePhotoUpload = (e) => {
-        const files = Array.from(e.target.files)
+        const files = Array.from(e.target.files || [])
 
         setPhotos(prev => [
             ...prev,
             ...files,
         ])
+
+        e.target.value = ''
+    }
+
+    const handleRestaurantSearch = async () => {
+        const keyword = restaurantName.trim()
+
+        if (!keyword) {
+            alert('식당 이름을 입력해주세요.')
+            return
+        }
+
+        setSearching(true)
+        setSearchResults([])
+
+        try {
+            const result = await searchRestaurants({
+                keyword,
+                radius: 1500,
+            })
+
+            setSearchResults(
+                Array.isArray(result) ? result : []
+            )
+        } catch (error) {
+            console.error('식당 검색 실패:', error)
+
+            if (error.message === 'UNAUTHORIZED') {
+                alert('로그인이 필요합니다.')
+                return
+            }
+
+            alert(
+                error.message ||
+                '식당 검색에 실패했습니다. 잠시 후 다시 시도해주세요.'
+            )
+        } finally {
+            setSearching(false)
+        }
+    }
+
+    const handleSelectRestaurant = (restaurant) => {
+        setSelectedRestaurant(restaurant)
+        setRestaurantName(restaurant.name || '')
+        setSearchResults([])
+    }
+
+    const handleSearchKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            handleRestaurantSearch()
+        }
     }
 
     const handleSubmit = () => {
@@ -84,8 +155,30 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
             return
         }
 
-        if (menus.some(menu => !menu.name.trim() || !menu.price.trim())) {
-            alert('메뉴명과 가격을 모두 입력해주세요.')
+        if (!selectedRestaurant) {
+            alert('식당 검색 후 검색 결과에서 식당을 선택해주세요.')
+            return
+        }
+
+        const validMenus = menus.filter(
+            menu =>
+                menu.name.trim() !== '' &&
+                String(menu.price).trim() !== ''
+        )
+
+        if (validMenus.length === 0) {
+            alert('메뉴를 최소 1개 이상 입력해주세요.')
+            return
+        }
+
+        const hasInvalidMenu = validMenus.some(
+            menu =>
+                Number.isNaN(Number(menu.price)) ||
+                Number(menu.price) <= 0
+        )
+
+        if (hasInvalidMenu) {
+            alert('메뉴 가격을 올바르게 입력해주세요.')
             return
         }
 
@@ -94,11 +187,22 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
             return
         }
 
+        const selectedCategories = Object.entries(categories)
+            .filter(([, checked]) => checked)
+            .map(([key]) => categoryLabels[key])
+
         const data = {
-            name: restaurantName,
-            breakTime,
-            categories,
-            menus,
+            restaurantId: selectedRestaurant.id ?? null,
+            name: selectedRestaurant.name || restaurantName.trim(),
+            address: selectedRestaurant.address || '',
+            latitude: selectedRestaurant.latitude ?? null,
+            longitude: selectedRestaurant.longitude ?? null,
+            breakTime: breakTime.trim(),
+            categories: selectedCategories,
+            menus: validMenus.map(menu => ({
+                name: menu.name.trim(),
+                price: Number(menu.price),
+            })),
             tags,
             photos,
         }
@@ -109,19 +213,15 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
             onSubmit(data)
         }
     }
-    const navigate = useNavigate()
-    const [hasToken, setHasToken] = useState(false)
-    const [nickname, setNickname] = useState('')
 
     useEffect(() => {
         const tokenExists = Boolean(getToken())
-
         setHasToken(tokenExists)
 
         if (tokenExists) {
             fetchMe()
-                .then((me) => {
-                    setNickname(me.nickname)
+                .then(me => {
+                    setNickname(me.nickname || '')
                 })
                 .catch(() => {
                     setNickname('')
@@ -129,22 +229,11 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
         }
     }, [])
 
-    useEffect(() => {
-        if (!hasToken) return
-
-        const timer = setTimeout(() => {
-            navigate('/map')
-        }, 5000) //5000
-
-        return () => clearTimeout(timer)
-    }, [hasToken, navigate])
-
     return (
         <div className="restaurant-create-overlay">
 
             <aside className="restaurant-create-popup">
 
-                {/* 닫기 */}
                 <button
                     className="restaurant-popup-close"
                     type="button"
@@ -154,44 +243,92 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
                     ×
                 </button>
 
-                {/* 제목 */}
                 <h1 className="restaurant-create-title">
                     {nickname} 님
                 </h1>
 
-                {/* 식당 검색 */}
                 <div className="create-search-row">
                     <input
                         type="text"
                         placeholder="식당 이름으로 검색"
                         value={restaurantName}
-                        onChange={(e) =>
+                        onChange={e => {
                             setRestaurantName(e.target.value)
-                        }
+                            setSelectedRestaurant(null)
+                            setSearchResults([])
+                        }}
+                        onKeyDown={handleSearchKeyDown}
                     />
 
-                    <button type="button">
-                        🔍
+                    <button
+                        type="button"
+                        onClick={handleRestaurantSearch}
+                        disabled={searching}
+                    >
+                        {searching ? '...' : '🔍'}
                     </button>
                 </div>
 
-                {/* 식당 정보 */}
+                {searchResults.length > 0 && (
+                    <div className="restaurant-search-results">
+                        {searchResults.map(restaurant => {
+                            const key =
+                                restaurant.id ??
+                                restaurant.googlePlaceId
+
+                            return (
+                                <button
+                                    key={key}
+                                    type="button"
+                                    className="restaurant-search-result"
+                                    onClick={() =>
+                                        handleSelectRestaurant(restaurant)
+                                    }
+                                >
+                                    <strong>
+                                        {restaurant.name || '이름 없음'}
+                                    </strong>
+
+                                    {restaurant.address && (
+                                        <span>
+                                            {restaurant.address}
+                                        </span>
+                                    )}
+                                </button>
+                            )
+                        })}
+                    </div>
+                )}
+
                 <div className="restaurant-create-info">
-                    가나다라라마바샤 식당 이름 · 영업시간 00:00-00:00
+                    {selectedRestaurant ? (
+                        <>
+                            <strong>
+                                {selectedRestaurant.name}
+                            </strong>
+
+                            {selectedRestaurant.address && (
+                                <>
+                                    {' · '}
+                                    {selectedRestaurant.address}
+                                </>
+                            )}
+                        </>
+                    ) : (
+                        '식당 이름으로 검색한 후 식당을 선택해주세요.'
+                    )}
                 </div>
 
-                {/* 브레이크 타임 */}
                 <input
                     className="create-full-input"
                     type="text"
                     placeholder="브레이크타임 작성하기 (선택)"
                     value={breakTime}
-                    onChange={(e) =>
+                    onChange={e =>
                         setBreakTime(e.target.value)
                     }
                 />
 
-                {/* 카테고리 */}
                 <section className="create-section">
                     <h2>카테고리</h2>
 
@@ -273,7 +410,6 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
                     </div>
                 </section>
 
-                {/* 메뉴 & 가격 */}
                 <section className="create-section">
                     <h2>메뉴 & 가격</h2>
 
@@ -286,7 +422,7 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
                                 type="text"
                                 placeholder="메뉴명 작성하기"
                                 value={menu.name}
-                                onChange={(e) =>
+                                onChange={e =>
                                     handleMenuChange(
                                         index,
                                         'name',
@@ -299,7 +435,7 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
                                 type="number"
                                 placeholder="가격 작성하기"
                                 value={menu.price}
-                                onChange={(e) =>
+                                onChange={e =>
                                     handleMenuChange(
                                         index,
                                         'price',
@@ -326,7 +462,6 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
                     </p>
                 </section>
 
-                {/* 기타 */}
                 <section className="create-section">
                     <h2>기타(선택)</h2>
 
@@ -362,7 +497,6 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
                     </p>
                 </section>
 
-                {/* 사진 */}
                 <section className="create-photo-section">
 
                     <label
@@ -396,12 +530,10 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
 
                 </section>
 
-                {/* 안내문 */}
                 <div className="create-notice">
                     *안내사항을 위한 자리.<br />
                 </div>
 
-                {/* 버튼 */}
                 <div className="create-button-row">
 
                     <button
@@ -427,7 +559,6 @@ export default function RestaurantCreatePopup({ onClose, onSubmit }) {
     )
 }
 
-
 function Category({ checked, onClick, label }) {
     return (
         <button
@@ -435,7 +566,11 @@ function Category({ checked, onClick, label }) {
             className="category-item"
             onClick={onClick}
         >
-            <span className={`category-checkbox ${checked ? 'checked' : ''}`}>
+            <span
+                className={`category-checkbox ${
+                    checked ? 'checked' : ''
+                }`}
+            >
                 {checked ? '✓' : ''}
             </span>
 

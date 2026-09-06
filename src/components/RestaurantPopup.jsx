@@ -525,8 +525,9 @@ export default function RestaurantPopup({
                 return
             }
 
-            const summary =
-                await response.json()
+            const summary = await response.json()
+
+            console.log('리뷰 반응 결과:', summary)
 
             // 해당 리뷰만 최신 상태로 갱신
             setReviews((prev) =>
@@ -1143,51 +1144,61 @@ export default function RestaurantPopup({
                                             {review.id != null && (
                                                 <div className="restaurant-comment-reactions">
 
-                                                    <button
-                                                        type="button"
-                                                        className={
-                                                            `restaurant-comment-reaction-btn ${
-                                                                review.myReaction ===
-                                                                'LIKE'
-                                                                    ? 'active-like'
-                                                                    : ''
-                                                            }`
-                                                        }
-                                                        onClick={() =>
-                                                            handleReaction(
-                                                                review.id,
-                                                                'LIKE'
-                                                            )
-                                                        }
-                                                        aria-label="도움이 됐어요"
-                                                    >
-                                                        👍 도움돼요{' '}
-                                                        {review.likeCount ??
-                                                            0}
-                                                    </button>
+                                                    {review.mine ? (
+                                                        <>
+                <span className="restaurant-comment-reaction-count">
+                    👍 {review.likeCount ?? 0}
+                </span>
 
-                                                    <button
-                                                        type="button"
-                                                        className={
-                                                            `restaurant-comment-reaction-btn ${
-                                                                review.myReaction ===
-                                                                'DISLIKE'
-                                                                    ? 'active-dislike'
-                                                                    : ''
-                                                            }`
-                                                        }
-                                                        onClick={() =>
-                                                            handleReaction(
-                                                                review.id,
-                                                                'DISLIKE'
-                                                            )
-                                                        }
-                                                        aria-label="도움이 안됐어요"
-                                                    >
-                                                        👎{' '}
-                                                        {review.dislikeCount ??
-                                                            0}
-                                                    </button>
+                                                            <span className="restaurant-comment-reaction-count">
+                    👎 {review.dislikeCount ?? 0}
+                </span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <button
+                                                                type="button"
+                                                                className={
+                                                                    `restaurant-comment-reaction-btn ${
+                                                                        review.myReaction === 'LIKE'
+                                                                            ? 'active-like'
+                                                                            : ''
+                                                                    }`
+                                                                }
+                                                                onClick={() =>
+                                                                    handleReaction(
+                                                                        review.id,
+                                                                        'LIKE'
+                                                                    )
+                                                                }
+                                                                aria-label="도움이 됐어요"
+                                                            >
+                                                                👍 도움돼요{' '}
+                                                                {review.likeCount ?? 0}
+                                                            </button>
+
+                                                            <button
+                                                                type="button"
+                                                                className={
+                                                                    `restaurant-comment-reaction-btn ${
+                                                                        review.myReaction === 'DISLIKE'
+                                                                            ? 'active-dislike'
+                                                                            : ''
+                                                                    }`
+                                                                }
+                                                                onClick={() =>
+                                                                    handleReaction(
+                                                                        review.id,
+                                                                        'DISLIKE'
+                                                                    )
+                                                                }
+                                                                aria-label="도움이 안됐어요"
+                                                            >
+                                                                👎{' '}
+                                                                {review.dislikeCount ?? 0}
+                                                            </button>
+                                                        </>
+                                                    )}
 
                                                 </div>
                                             )}

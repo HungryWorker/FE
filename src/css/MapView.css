@@ -547,10 +547,7 @@
     left: 16px;
     top: 80px;
     bottom: 90px;
-    /*
-    팝업창 layer order 문제로 주석처리
-    z-index: 700;
-     */
+    /*z-index: 700;*/
     display: flex;
     align-items: stretch;
     gap: 16px;

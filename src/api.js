@@ -1,4 +1,5 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+export const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
 const TOKEN_KEY = 'hungryworker_token'
 
@@ -19,19 +20,28 @@ export function googleLoginUrl() {
 }
 
 /**
- * 인증이 필요한 API 호출 공통 래퍼.
- * 401이 오면 토큰이 무효하다는 뜻이므로 지워서 다시 로그인하게 한다.
+ * 공통 API 호출 함수
+ *
+ * JSON 요청:
+ *   Content-Type: application/json
+ *
+ * FormData 요청:
+ *   Content-Type을 직접 지정하지 않는다.
+ *   브라우저가 multipart/form-data + boundary를 자동으로 설정한다.
  */
 export async function apiFetch(path, options = {}) {
   const token = getToken()
+  const isFormData = options.body instanceof FormData
+
+  const headers = {
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
+    headers,
   })
 
   if (response.status === 401) {
@@ -56,25 +66,29 @@ export function fetchMe() {
 }
 
 /**
- * 주어진 좌표 주변의 음식점을 조회한다.
- * 백엔드 RestaurantController가 아직 없다면 404/401 등으로 실패할 수 있는데,
- * 그 경우에도 지도 화면 자체는 정상 동작해야 하므로 호출부에서 에러를 흡수한다.
+ * 주변 식당 조회
  */
-export function fetchNearbyRestaurants({ lat, lng, radius = 1500, maxPrice } = {}) {
+export function fetchNearbyRestaurants({
+                                         lat,
+                                         lng,
+                                         radius = 1500,
+                                         maxPrice,
+                                       } = {}) {
   const params = new URLSearchParams({
     lat: String(lat),
     lng: String(lng),
     radius: String(radius),
   })
+
   if (maxPrice) {
     params.set('maxPrice', String(maxPrice))
   }
+
   return apiFetch(`/api/restaurants/nearby?${params.toString()}`)
 }
 
 /**
- * 키워드로 음식점을 검색한다.
- * 백엔드에서 Google Places Text Search API를 호출한다.
+ * 식당 검색
  */
 export function searchRestaurants({
                                     keyword,
@@ -95,8 +109,73 @@ export function searchRestaurants({
   }
 
   if (radius != null) {
-    params.set('radiusMeters', String(radius))
+    params.set('radius', String(radius))
   }
 
   return apiFetch(`/api/restaurants/search?${params.toString()}`)
+}
+
+/**
+ * 식당 등록
+ *
+ * Backend:
+ * POST /api/restaurants
+ * Content-Type: multipart/form-data
+ *
+ * text fields:
+ * - restaurantId
+ * - name
+ * - address
+ * - latitude
+ * - longitude
+ * - breakTime
+ * - categories
+ * - tags
+ * - menusJson
+ *
+ * file:
+ * - photos
+ */
+export function createRestaurant({
+                                   restaurantId,
+                                   name,
+                                   address,
+                                   latitude,
+                                   longitude,
+                                   breakTime,
+                                   categories = [],
+                                   tags = [],
+                                   menus = [],
+                                   photos = [],
+                                 }) {
+  const formData = new FormData()
+
+  if (restaurantId != null) {
+    formData.append('restaurantId', String(restaurantId))
+  }
+
+  formData.append('name', name ?? '')
+  formData.append('address', address ?? '')
+  formData.append('latitude', String(latitude))
+  formData.append('longitude', String(longitude))
+  formData.append('breakTime', breakTime ?? '')
+
+  categories.forEach((category) => {
+    formData.append('categories', category)
+  })
+
+  tags.forEach((tag) => {
+    formData.append('tags', tag)
+  })
+
+  formData.append('menusJson', JSON.stringify(menus))
+
+  photos.forEach((photo) => {
+    formData.append('photos', photo)
+  })
+
+  return apiFetch('/api/restaurants', {
+    method: 'POST',
+    body: formData,
+  })
 }

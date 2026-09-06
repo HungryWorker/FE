@@ -13,7 +13,7 @@ import {
 } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { fetchNearbyRestaurants, searchRestaurants, getToken, } from '../api'
+import { fetchNearbyRestaurants, searchRestaurants, getToken, createRestaurant } from '../api'
 import RestaurantList from '../components/RestaurantList'
 import RestaurantPopup from '../components/RestaurantPopup'
 import RestaurantCreatePopup from '../components/RestaurantCreatePopup'
@@ -368,19 +368,60 @@ export default function MapView() {
                   onClose={() => setSelectedRestaurant(null)}
               />
           )}
-            {showCreatePopup && (
-                <RestaurantCreatePopup
-                    onClose={() => setShowCreatePopup(false)}
-                    onSubmit={(data) => {
-                        console.log('등록할 식당:', data)
+          {showCreatePopup && (
+              <RestaurantCreatePopup
+                  onClose={() => setShowCreatePopup(false)}
+                  onSubmit={async (data) => {
+                    try {
+                      const result = await createRestaurant({
+                        restaurantId: data.restaurantId ?? null,
+                        name: data.name ?? '',
+                        address: data.address ?? '',
+                        latitude: mapCenter?.lat ?? position.lat,
+                        longitude: mapCenter?.lng ?? position.lng,
+                        breakTime: data.breakTime ?? '',
+                        categories: data.categories ?? [],
+                        tags: data.tags ?? [],
+                        menus: data.menus ?? [],
+                        photos: data.photos ?? [],
+                      })
 
-                        // 나중에 여기에서 API 호출
-                        // createRestaurant(data)
+                      console.log('식당 등록 성공:', result)
 
-                        setShowCreatePopup(false)
-                    }}
-                />
-            )}
+                      alert('식당이 등록되었습니다.')
+
+                      setShowCreatePopup(false)
+
+                      // 등록한 식당이 주변 목록에 바로 나오도록 다시 조회
+                      const refreshedRestaurants = await fetchNearbyRestaurants({
+                        lat: mapCenter?.lat ?? position.lat,
+                        lng: mapCenter?.lng ?? position.lng,
+                        radius: SEARCH_RADIUS_M,
+                      })
+
+                      setRestaurants(
+                          Array.isArray(refreshedRestaurants)
+                              ? refreshedRestaurants
+                              : []
+                      )
+
+                    } catch (e) {
+                      console.error('식당 등록 실패:', e)
+
+                      if (e.message === 'UNAUTHORIZED') {
+                        alert('로그인 후 식당을 등록할 수 있습니다.')
+                        navigate('/')
+                        return
+                      }
+
+                      alert(
+                          e.message ||
+                          '식당 등록에 실패했습니다. 잠시 후 다시 시도해주세요.'
+                      )
+                    }
+                  }}
+              />
+          )}
 
         </div>
         {showResearch && (

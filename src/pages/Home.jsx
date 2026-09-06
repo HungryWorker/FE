@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { getToken, googleLoginUrl, fetchMe } from '../api'
 import '../css/home.css';
-import logo from "../image/logo_temp.png";
+import logo from "../images/logo_temp.png";
 
 export default function Home() {
   const navigate = useNavigate()

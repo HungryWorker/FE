@@ -1173,7 +1173,7 @@ export default function RestaurantPopup({
                                                                 }
                                                                 aria-label="도움이 됐어요"
                                                             >
-                                                                👍 도움돼요{' '}
+                                                                👍{' '}
                                                                 {review.likeCount ?? 0}
                                                             </button>
 
@@ -1268,9 +1268,7 @@ function ScorePicker({
                                     onSelect(star)
                                 }
                                 aria-label={`${label} ${star}점`}
-                            >
-                                ★
-                            </button>
+                            />
                         )
                     }
                 )}

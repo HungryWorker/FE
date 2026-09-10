@@ -8,26 +8,56 @@
     justify-content: center;
     align-items: center;
 
-    background: rgba(0, 0, 0, 0.35);
+    padding: 24px;
+
+    background: var(--overlay);
+
+    animation: create-overlay-in 0.2s ease-out;
+}
+
+@keyframes create-overlay-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .restaurant-create-popup {
     position: relative;
 
-    width: 710px;
-    height: 90vh;
+    width: 100%;
+    max-width: 640px;
+    max-height: 88vh;
 
     box-sizing: border-box;
 
-    padding: 45px 35px 30px;
+    padding: 40px 36px 28px;
 
-    background: #fff;
+    background: var(--card);
 
-    border-radius: 35px;
+    border-radius: var(--radius-lg);
 
     overflow-y: auto;
+    overscroll-behavior: contain;
 
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-lg);
+
+    animation: create-popup-in 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes create-popup-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 
@@ -36,83 +66,207 @@
 .restaurant-create-popup .restaurant-popup-close {
     position: absolute;
 
-    top: 20px;
-    right: 25px;
+    top: 18px;
+    right: 20px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     border: none;
-    background: transparent;
+    border-radius: 50%;
+    background: var(--bg);
 
-    font-size: 38px;
+    font-size: 26px;
     font-weight: 500;
+    line-height: 1;
 
-    color: #3d250d;
+    color: var(--ink);
 
     cursor: pointer;
+
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.restaurant-create-popup .restaurant-popup-close:hover {
+    background: var(--dislike-soft);
+    color: var(--dislike);
+    transform: rotate(90deg);
 }
 
 
 /* 제목 */
 
 .restaurant-create-title {
-    margin: 0 0 30px;
+    margin: 0 40px 24px 0;
 
-    font-size: 38px;
-    font-weight: 800;
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
 
-    color: #3d250d;
+    color: var(--ink);
 }
 
 
 /* 검색 */
 
 .create-search-row {
+    position: relative;
+
     display: flex;
     align-items: center;
 
     width: 100%;
-    height: 58px;
+    height: 52px;
 
-    border: 2px solid #d3ccc4;
-    border-radius: 30px;
+    border: 2px solid var(--line);
+    border-radius: var(--radius-pill);
 
     box-sizing: border-box;
 
-    padding: 0 18px;
+    padding: 0 8px 0 20px;
+
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.create-search-row:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .create-search-row input {
     flex: 1;
 
+    min-width: 0;
+
     border: none;
     outline: none;
 
-    font-size: 19px;
+    background: transparent;
+
+    font-size: 16px;
     font-weight: 600;
+
+    color: var(--ink);
 }
 
 .create-search-row input::placeholder {
-    color: #c5bdb4;
+    color: var(--ink-faint);
+    font-weight: 500;
 }
 
 .create-search-row button {
-    border: none;
-    background: transparent;
+    flex-shrink: 0;
 
-    font-size: 25px;
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+    background: var(--accent);
+
+    color: #fff;
+
+    font-size: 16px;
 
     cursor: pointer;
+
+    transition: background 0.15s ease;
+}
+
+.create-search-row button:hover:not(:disabled) {
+    background: var(--accent-dark);
+}
+
+.create-search-row button:disabled {
+    background: var(--line-strong);
+    cursor: default;
+}
+
+
+/* 검색 결과 드롭다운 */
+
+.restaurant-search-results {
+    display: flex;
+    flex-direction: column;
+
+    margin: 8px 4px 0;
+
+    max-height: 220px;
+    overflow-y: auto;
+
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+
+    background: #fff;
+
+    box-shadow: var(--shadow-sm);
+}
+
+.restaurant-search-result {
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+
+    width: 100%;
+
+    padding: 12px 16px;
+
+    border: none;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: background 0.12s ease;
+}
+
+.restaurant-search-result:last-child {
+    border-bottom: none;
+}
+
+.restaurant-search-result:hover {
+    background: var(--bg);
+}
+
+.restaurant-search-result strong {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.restaurant-search-result span {
+    font-size: 12px;
+    color: var(--ink-soft);
 }
 
 
 /* 식당 정보 */
 
 .restaurant-create-info {
-    margin: 14px 5px;
+    margin: 14px 6px;
 
-    font-size: 20px;
-    font-weight: 700;
+    padding: 12px 16px;
 
-    color: #3d250d;
+    background: var(--accent-soft);
+    border-radius: var(--radius-md);
+
+    font-size: 15px;
+    font-weight: 600;
+
+    color: var(--accent-ink);
+
+    line-height: 1.5;
 }
 
 
@@ -120,39 +274,49 @@
 
 .create-full-input {
     width: 100%;
-    height: 48px;
+    height: 50px;
 
     box-sizing: border-box;
 
-    border: 2px solid #d3ccc4;
-    border-radius: 25px;
+    border: 2px solid var(--line);
+    border-radius: var(--radius-pill);
 
     padding: 0 20px;
 
     outline: none;
 
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 600;
+
+    color: var(--ink);
+
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.create-full-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .create-full-input::placeholder {
-    color: #c5bdb4;
+    color: var(--ink-faint);
+    font-weight: 500;
 }
 
 
 /* 섹션 */
 
 .create-section {
-    margin-top: 45px;
+    margin-top: 36px;
 }
 
 .create-section h2 {
-    margin: 0 0 18px;
+    margin: 0 0 16px;
 
-    font-size: 25px;
-    font-weight: 800;
+    font-size: 19px;
+    font-weight: 700;
 
-    color: #3d250d;
+    color: var(--ink);
 }
 
 
@@ -161,60 +325,93 @@
 .category-grid {
     display: grid;
 
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
 
-    gap: 15px 10px;
+    gap: 10px;
 }
 
 .category-item {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
 
-    border: none;
-    background: transparent;
+    height: 40px;
 
-    font-size: 17px;
+    padding: 0 12px;
 
-    color: #3d250d;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: #fff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: var(--ink-soft);
 
     cursor: pointer;
+
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.category-item:hover {
+    border-color: var(--line-strong);
 }
 
 .category-checkbox {
-    width: 20px;
-    height: 20px;
+    flex-shrink: 0;
+
+    width: 18px;
+    height: 18px;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    border: 2px solid #3d250d;
+    border: 2px solid var(--line-strong);
+    border-radius: 5px;
 
     box-sizing: border-box;
 
-    font-size: 17px;
+    font-size: 12px;
     font-weight: 800;
+
+    color: #fff;
+
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .category-checkbox.checked {
-    background: white;
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.category-item:has(.category-checkbox.checked) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-ink);
 }
 
 .category-add-button {
-    width: 38px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
 
-    border: 1px solid #d3ccc4;
-    border-radius: 20px;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-pill);
 
-    background: white;
+    background: #fff;
 
-    font-size: 20px;
+    font-size: 18px;
 
-    color: #aaa;
+    color: var(--ink-faint);
 
     cursor: pointer;
+
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.category-add-button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 
@@ -230,21 +427,32 @@
 .menu-price-row input {
     height: 48px;
 
+    min-width: 0;
+
     box-sizing: border-box;
 
-    border: 2px solid #d3ccc4;
-    border-radius: 25px;
+    border: 2px solid var(--line);
+    border-radius: var(--radius-pill);
 
     padding: 0 18px;
 
     outline: none;
 
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
+
+    color: var(--ink);
+
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.menu-price-row input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .menu-price-row input:first-child {
-    flex: 1;
+    flex: 1.4;
 }
 
 .menu-price-row input:nth-child(2) {
@@ -252,28 +460,38 @@
 }
 
 .menu-confirm-button {
-    width: 100px;
+    flex-shrink: 0;
+
+    width: 88px;
 
     border: none;
-    border-radius: 25px;
+    border-radius: var(--radius-pill);
 
-    background: #3d250d;
+    background: var(--ink);
     color: white;
 
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
 
     cursor: pointer;
+
+    transition: background 0.15s ease;
+}
+
+.menu-confirm-button:hover {
+    background: #333c2b;
 }
 
 
 .create-description {
-    margin: 8px 4px 0;
+    margin: 10px 4px 0;
 
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
 
-    color: #3d250d;
+    color: var(--ink-faint);
+
+    line-height: 1.5;
 }
 
 
@@ -281,85 +499,119 @@
 
 .tag-list {
     display: flex;
+    flex-wrap: wrap;
+
     gap: 8px;
 }
 
 .create-tag {
-    padding: 7px 16px;
+    padding: 8px 18px;
 
-    border: 1px solid #d3ccc4;
-    border-radius: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
 
-    background: white;
+    background: #fff;
 
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
 
-    color: #6d6258;
+    color: var(--ink-soft);
 
     cursor: pointer;
+
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.create-tag:hover {
+    border-color: var(--line-strong);
 }
 
 .create-tag.selected {
-    background: #dedbd7;
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-ink);
 }
 
 
 /* 사진 */
 
 .create-photo-section {
-    margin-top: 45px;
+    margin-top: 36px;
 }
 
 .photo-upload-button {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 8px;
 
     width: 100%;
-    height: 48px;
+    height: 50px;
 
     box-sizing: border-box;
 
-    border: 2px solid #d3ccc4;
-    border-radius: 25px;
+    border: 2px dashed var(--line-strong);
+    border-radius: var(--radius-md);
 
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 700;
 
-    color: #3d250d;
+    color: var(--ink-soft);
 
     cursor: pointer;
+
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.photo-upload-button:hover {
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    background: var(--accent-soft);
 }
 
 .photo-preview-list {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
 
     margin-top: 12px;
-
-    overflow-x: auto;
 }
 
 .photo-preview {
-    padding: 8px 12px;
+    padding: 8px 14px;
 
-    border-radius: 10px;
+    border-radius: var(--radius-pill);
 
-    background: #f1efed;
+    background: var(--bg);
+    border: 1px solid var(--line);
 
-    font-size: 13px;
+    color: var(--ink-soft);
+
+    font-size: 12px;
+    font-weight: 500;
+
+    max-width: 200px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
 /* 안내문 */
 
 .create-notice {
-    margin-top: 40px;
+    margin-top: 32px;
+
+    padding: 12px 14px;
+
+    background: var(--bg);
+    border-radius: var(--radius-sm);
 
     font-size: 11px;
-    line-height: 1.5;
+    line-height: 1.6;
 
-    color: #c4bbb3;
+    color: var(--ink-faint);
 }
 
 
@@ -370,29 +622,145 @@
     justify-content: flex-end;
     gap: 10px;
 
-    margin-top: 25px;
+    margin-top: 28px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid var(--line);
 }
 
 .create-cancel-button,
 .create-submit-button {
-    width: 100px;
+    min-width: 104px;
     height: 48px;
 
-    border: none;
-    border-radius: 25px;
+    padding: 0 20px;
 
-    font-size: 17px;
+    border: none;
+    border-radius: var(--radius-pill);
+
+    font-size: 15px;
     font-weight: 700;
 
     cursor: pointer;
+
+    transition: background 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
 }
 
 .create-cancel-button {
-    background: #c8c4c0;
-    color: white;
+    background: var(--bg);
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+}
+
+.create-cancel-button:hover {
+    background: #efece2;
 }
 
 .create-submit-button {
-    background: #3d250d;
+    background: var(--accent);
     color: white;
+}
+
+.create-submit-button:hover:not(:disabled) {
+    background: var(--accent-dark);
+}
+
+.create-submit-button:disabled {
+    background: var(--line-strong);
+    color: var(--ink-faint);
+    cursor: default;
+}
+
+
+/* =========================================================
+   좁은 화면 (태블릿)
+========================================================= */
+
+@media (max-width: 720px) {
+    .restaurant-create-popup {
+        max-width: 100%;
+        padding: 34px 24px 24px;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    }
+}
+
+
+/* =========================================================
+   모바일 - 전체 화면 바텀시트
+========================================================= */
+
+@media (max-width: 640px) {
+    .restaurant-create-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .restaurant-create-popup {
+        max-width: 100%;
+        max-height: 94vh;
+        max-height: 94dvh;
+
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+
+        padding: 28px 18px calc(20px + env(safe-area-inset-bottom));
+
+        animation: create-popup-in-mobile 0.22s ease-out;
+    }
+
+    .restaurant-create-title {
+        font-size: 24px;
+        margin-bottom: 18px;
+    }
+
+    .create-search-row {
+        height: 48px;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .menu-price-row {
+        flex-wrap: wrap;
+    }
+
+    .menu-price-row input:first-child,
+    .menu-price-row input:nth-child(2) {
+        flex: 1 1 calc(50% - 4px);
+    }
+
+    .menu-confirm-button {
+        width: 100%;
+    }
+
+    .create-button-row {
+        position: sticky;
+        bottom: calc(-20px - env(safe-area-inset-bottom));
+
+        margin: 28px -18px calc(-20px - env(safe-area-inset-bottom));
+        padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+
+        background: var(--card);
+    }
+
+    .create-cancel-button,
+    .create-submit-button {
+        flex: 1;
+    }
+}
+
+@keyframes create-popup-in-mobile {
+    from {
+        transform: translateY(24px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }

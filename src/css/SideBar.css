@@ -6,13 +6,15 @@
 
     width: 80px;
     height: 100vh;
+    height: 100dvh;
 
     box-sizing: border-box;
 
     padding: 20px 10px;
 
-    background: white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    background: var(--card);
+    border-right: 1px solid var(--line);
+    box-shadow: var(--shadow-md);
 
     z-index: 1002;
 
@@ -23,15 +25,14 @@
 }
 
 .map-sidebar-menu-btn {
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 48px;
 
-    color: white;
-    background-color: white;
-    margin-top: 10px;
+    color: var(--ink-soft);
+    background-color: var(--bg);
 
-    border: none;
-    border-radius: 8px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
 
     cursor: pointer;
     flex-shrink: 0;
@@ -41,20 +42,34 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
 .map-sidebar-menu-btn:hover {
-    /*
-    background: #eaeaea;
-     */
+    background: var(--accent-soft);
+    border-color: var(--accent);
+}
+
+.map-sidebar-menu-btn:active {
+    transform: scale(0.96);
 }
 
 .map-sidebar-menu-btn img {
-    width: 100%;
+    width: 22px;
+    height: 22px;
+
+    object-fit: contain;
 }
 
 #home {
-    margin-bottom: 70px;
+    margin-bottom: 46px;
+    background: var(--accent);
+}
+
+#home img {
+    /* 로고 이미지가 어두운 색일 수 있어 오렌지 배경 위에서도 또렷하게 보이도록 */
+    filter: brightness(0) invert(1);
 }
 
 
@@ -66,18 +81,21 @@
     position: fixed;
 
     top: 0;
-    left: 50px;
+    left: 80px;
 
     width: 360px;
     height: 100vh;
+    height: 100dvh;
 
     box-sizing: border-box;
 
-    background: white;
+    background: var(--card);
 
     overflow-y: auto;
 
     z-index: 700;
+
+    box-shadow: var(--shadow-lg);
 
     transform: translateX(-150%);
     transition: transform 0.3s ease;
@@ -104,24 +122,78 @@
     padding: 20px;
 
     margin-bottom: 0;
+
+    border-bottom: 1px solid var(--line);
 }
 
 .map-search-header strong {
     font-size: 18px;
+    font-family: var(--font-display);
+    color: var(--ink);
 }
 
 .map-search-back {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
 
     border: none;
-    background: #f5f5f5;
-    border-radius: 8px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
 
     font-size: 18px;
+    color: var(--ink);
     cursor: pointer;
+
+    transition: background 0.15s ease;
 }
 
 .map-search-back:hover {
-    background: #eaeaea;
+    background: var(--accent-soft);
+}
+
+
+/* =========================================================
+   모바일 - 세로 사이드바를 하단 탭바로 전환
+========================================================= */
+
+@media (max-width: 640px) {
+
+    .map-sidebar {
+        top: auto;
+        bottom: 0;
+        left: 0;
+
+        width: 100%;
+        height: 64px;
+
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+
+        padding: 8px calc(8px + env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-right));
+
+        gap: 0;
+
+        border-right: none;
+        border-top: 1px solid var(--line);
+
+        box-shadow: 0 -6px 20px rgba(34, 40, 31, 0.1);
+    }
+
+    .map-sidebar-menu-btn {
+        width: 46px;
+        height: 46px;
+    }
+
+    #home {
+        margin-bottom: 0;
+    }
+
+    .map-search-panel {
+        left: 0;
+
+        width: 100%;
+
+        height: calc(100% - 64px);
+    }
 }

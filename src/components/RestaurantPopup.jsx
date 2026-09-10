@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import '../css/RestaurantPopup.css'
-import { getToken } from '../api'
+import { getToken, apiFetch } from '../api'
 
 /*
  * 별점을 ★★★★☆ 형태의 문자열로 변환.
@@ -126,7 +126,7 @@ export default function RestaurantPopup({
             try {
                 const token = getToken()
 
-                const response = await fetch(
+                const response = await apiFetch(
                     `/api/restaurants/${restaurantId}/reviews`,
                     {
                         headers: {
@@ -392,7 +392,7 @@ export default function RestaurantPopup({
         try {
             const token = getToken()
 
-            const response = await fetch(
+            const response = await apiFetch(
                 `/api/restaurants/${restaurantId}/reviews`,
                 {
                     method: 'POST',
@@ -499,7 +499,7 @@ export default function RestaurantPopup({
         }
 
         try {
-            const response = await fetch(
+            const response = await apiFetch(
                 `/api/reviews/${reviewId}/reaction`,
                 {
                     method: 'PUT',

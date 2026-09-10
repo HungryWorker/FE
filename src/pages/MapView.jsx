@@ -17,7 +17,7 @@ import { fetchNearbyRestaurants, searchRestaurants, getToken, createRestaurant }
 import RestaurantList from '../components/RestaurantList'
 import RestaurantPopup from '../components/RestaurantPopup'
 import RestaurantCreatePopup from '../components/RestaurantCreatePopup'
-import '../css/Mapview.css'
+import '../css/MapView.css'
 
 // 위치 권한이 없거나 실패했을 때 대체로 보여줄 중심 좌표 (서울시청)
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
